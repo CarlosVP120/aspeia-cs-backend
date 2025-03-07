@@ -13,35 +13,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model USUARIO {
+model Usuario {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Many-to-many relation with WORKSPACE
-  workspaces USUARIO_WORKSPACE[]
+  // Many-to-many relation with Workspace
+  workspaces UsuarioWorkspace[]
 }
 
-model WORKSPACE {
+model Workspace {
   id          Int       @id @default(autoincrement())
   name        String
   description String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  // Many-to-many relation with USUARIO
-  users       USUARIO_WORKSPACE[]
+  // Many-to-many relation with Usuario
+  users       UsuarioWorkspace[]
 }
 
-// Junction table to handle the many-to-many relationship between USUARIO and WORKSPACE
-model USUARIO_WORKSPACE {
-  usuario      USUARIO    @relation(fields: [usuarioId], references: [id])
+// Junction table to handle the many-to-many relationship between Usuario and Workspace
+model UsuarioWorkspace {
+  usuario      Usuario    @relation(fields: [usuarioId], references: [id])
   usuarioId    Int
-  workspace    WORKSPACE  @relation(fields: [workspaceId], references: [id])
+  workspace    Workspace  @relation(fields: [workspaceId], references: [id])
   workspaceId  Int
-  role         WORKSPACE_ROLE @default(MEMBER)
+  role         WorkspaceRole @default(MEMBER)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -50,7 +50,7 @@ model USUARIO_WORKSPACE {
   @@index([workspaceId])
 }
 
-enum WORKSPACE_ROLE {
+enum WorkspaceRole {
   ADMIN
   MEMBER
 }
