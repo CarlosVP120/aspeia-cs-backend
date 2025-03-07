@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   HttpCode,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, SignupDto } from './dto/auth.dto';
@@ -48,5 +49,11 @@ export class AuthController {
   @Get('users/:id')
   async getUserById(@Param('id') id: string) {
     return this.authService.getUserById(parseInt(id));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('refreshToken')
+  async refreshToken(@Req() req: any) {
+    return this.authService.refreshToken(req.user);
   }
 }

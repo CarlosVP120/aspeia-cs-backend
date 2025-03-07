@@ -96,4 +96,25 @@ export class AuthService {
     const saltRounds = 10;
     return bcrypt.hash(password, saltRounds);
   }
+
+  async refreshToken(user: any): Promise<UserResponseDto> {
+    // Generate a new token
+    const token = this.generateToken(user.id, user.email);
+
+    // Get the full user object to return
+    const userData = await this.prisma.usuario.findUnique({
+      where: { id: user.id },
+    });
+
+    if (!userData) {
+      throw new NotFoundException('User not found');
+    }
+
+    const userDto = new UserDto(userData);
+
+    return new UserResponseDto({
+      user: userDto,
+      accessToken: token,
+    });
+  }
 }
