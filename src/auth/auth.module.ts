@@ -4,8 +4,8 @@ import { AuthController } from './auth.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './jwt.strategy';
-import { jwtConstants } from './constants';
+import { JwtStrategy } from './jwt/jwt.strategy';
+import { jwtConstants } from './jwt/constants';
 
 @Module({
   imports: [
