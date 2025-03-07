@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -17,7 +25,14 @@ export class AuthController {
 
   @Get('users')
   async getAllUsers() {
-    return this.authService.getAllUsers();
+    try {
+      return this.authService.getAllUsers();
+    } catch (error) {
+      throw new HttpException(
+        'Error fetching users',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Get('users/:id')
