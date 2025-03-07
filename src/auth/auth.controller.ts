@@ -6,23 +6,32 @@ import {
   Param,
   HttpException,
   HttpStatus,
+  UseGuards,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { LoginDto, SignupDto } from './dto/auth.dto';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
-  async signUp(@Body() body: { email: string; password: string }) {
-    return this.authService.signUp(body.email, body.password);
+  async signUp(@Body() signupDto: SignupDto) {
+    return this.authService.signUp(signupDto.email, signupDto.password);
   }
 
   @Post('signin')
-  async signIn(@Body() body: { email: string; password: string }) {
-    return this.authService.signIn(body.email, body.password);
+  @HttpCode(HttpStatus.OK)
+  async signIn(@Body() loginDto: LoginDto) {
+    return this.authService.signIn(loginDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('users')
   async getAllUsers() {
     try {
@@ -35,6 +44,7 @@ export class AuthController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('users/:id')
   async getUserById(@Param('id') id: string) {
     return this.authService.getUserById(parseInt(id));
