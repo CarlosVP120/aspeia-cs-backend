@@ -24,12 +24,12 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Credenciales inválidas');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Credenciales inválidas');
     }
 
     const token = this.generateToken(user.id, user.email);
@@ -49,7 +49,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException('Email already in use');
+      throw new ConflictException('El correo electrónico ya está en uso');
     }
 
     // Hash the password
@@ -107,7 +107,7 @@ export class AuthService {
     });
 
     if (!userData) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Usuario no encontrado');
     }
 
     const userDto = new UserDto(userData);

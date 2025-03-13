@@ -1,22 +1,34 @@
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class LoginDto {
-  @IsEmail({}, { message: 'Please provide a valid email address' })
-  @IsNotEmpty({ message: 'Email is required' })
+  @IsEmail(
+    {},
+    {
+      message:
+        'Por favor proporciona una dirección de correo electrónico válida',
+    },
+  )
+  @IsNotEmpty({ message: 'El correo electrónico es obligatorio' })
   email: string;
 
-  @IsString({ message: 'Password must be a string' })
-  @IsNotEmpty({ message: 'Password is required' })
+  @IsString({ message: 'La contraseña debe ser una cadena de texto' })
+  @IsNotEmpty({ message: 'La contraseña es obligatoria' })
   password: string;
 }
 
 export class SignupDto {
-  @IsEmail({}, { message: 'Please provide a valid email address' })
-  @IsNotEmpty({ message: 'Email is required' })
+  @IsEmail(
+    {},
+    {
+      message:
+        'Por favor proporciona una dirección de correo electrónico válida',
+    },
+  )
+  @IsNotEmpty({ message: 'El correo electrónico es obligatorio' })
   email: string;
 
-  @IsString({ message: 'Password must be a string' })
-  @IsNotEmpty({ message: 'Password is required' })
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
+  @IsString({ message: 'La contraseña debe ser una cadena de texto' })
+  @IsNotEmpty({ message: 'La contraseña es obligatoria' })
+  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
   password: string;
 }

@@ -39,7 +39,7 @@ export class AuthController {
       return this.authService.getAllUsers();
     } catch (error) {
       throw new HttpException(
-        'Error fetching users',
+        'Error al obtener usuarios',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

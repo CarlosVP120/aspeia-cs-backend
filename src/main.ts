@@ -14,6 +14,8 @@ async function bootstrap() {
     }),
   );
   await app.listen(process.env.PORT ?? 4000);
-  logger.log(`SRV-BACKEND Gateway running on port ${process.env.PORT ?? 4000}`);
+  logger.log(
+    `SRV-BACKEND Gateway ejecutándose en el puerto ${process.env.PORT ?? 4000}`,
+  );
 }
 bootstrap();

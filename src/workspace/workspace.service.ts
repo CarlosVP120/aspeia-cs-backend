@@ -55,7 +55,9 @@ export class WorkspaceService {
     });
 
     if (!workspace) {
-      throw new NotFoundException(`Workspace with ID ${id} not found`);
+      throw new NotFoundException(
+        `Espacio de trabajo con ID ${id} no encontrado`,
+      );
     }
 
     return new WorkspaceDto(workspace);
@@ -85,7 +87,9 @@ export class WorkspaceService {
     });
 
     if (!workspace) {
-      throw new NotFoundException(`Workspace with ID ${id} not found`);
+      throw new NotFoundException(
+        `Espacio de trabajo con ID ${id} no encontrado`,
+      );
     }
 
     // Check if user is an admin of the workspace
@@ -101,7 +105,7 @@ export class WorkspaceService {
 
     if (!userWorkspace) {
       throw new ForbiddenException(
-        'Only workspace admins can update workspace details',
+        'Solo los administradores del espacio de trabajo pueden actualizar los detalles',
       );
     }
 
@@ -121,7 +125,9 @@ export class WorkspaceService {
     });
 
     if (!workspace) {
-      throw new NotFoundException(`Workspace with ID ${id} not found`);
+      throw new NotFoundException(
+        `Espacio de trabajo con ID ${id} no encontrado`,
+      );
     }
 
     // Check if user is an admin of the workspace
@@ -137,7 +143,7 @@ export class WorkspaceService {
 
     if (!userWorkspace) {
       throw new ForbiddenException(
-        'Only workspace admins can delete workspaces',
+        'Solo los administradores del espacio de trabajo pueden eliminar espacios de trabajo',
       );
     }
 
@@ -160,7 +166,7 @@ export class WorkspaceService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User with ID ${usuarioId} not found`);
+      throw new NotFoundException(`Usuario con ID ${usuarioId} no encontrado`);
     }
 
     // Check if the workspace exists
@@ -169,7 +175,9 @@ export class WorkspaceService {
     });
 
     if (!workspace) {
-      throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
+      throw new NotFoundException(
+        `Espacio de trabajo con ID ${workspaceId} no encontrado`,
+      );
     }
 
     // Check if the requesting user is an admin in the workspace
@@ -186,7 +194,7 @@ export class WorkspaceService {
 
     if (!requestingUserWorkspace) {
       throw new ForbiddenException(
-        'Only workspace admins can add users to workspaces',
+        'Solo los administradores del espacio de trabajo pueden agregar usuarios',
       );
     }
 
@@ -201,7 +209,9 @@ export class WorkspaceService {
     });
 
     if (existingUserWorkspace) {
-      throw new ConflictException(`User is already a member of this workspace`);
+      throw new ConflictException(
+        `El usuario ya es miembro de este espacio de trabajo`,
+      );
     }
 
     // Add the user to the workspace
@@ -229,7 +239,9 @@ export class WorkspaceService {
     });
 
     if (!workspace) {
-      throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
+      throw new NotFoundException(
+        `Espacio de trabajo con ID ${workspaceId} no encontrado`,
+      );
     }
 
     // Check if the requesting user is an admin in the workspace
@@ -246,7 +258,7 @@ export class WorkspaceService {
 
     if (!requestingUserWorkspace) {
       throw new ForbiddenException(
-        'Only workspace admins can remove users from workspaces',
+        'Solo los administradores del espacio de trabajo pueden remover usuarios',
       );
     }
 
@@ -261,7 +273,9 @@ export class WorkspaceService {
     });
 
     if (!userToRemoveWorkspace) {
-      throw new NotFoundException(`User is not a member of this workspace`);
+      throw new NotFoundException(
+        `El usuario no es miembro de este espacio de trabajo`,
+      );
     }
 
     // Prevent removing the last admin
@@ -275,7 +289,7 @@ export class WorkspaceService {
 
       if (adminCount <= 1) {
         throw new ForbiddenException(
-          'Cannot remove the last admin from a workspace',
+          'No se puede eliminar al último administrador del espacio de trabajo',
         );
       }
     }
@@ -305,7 +319,9 @@ export class WorkspaceService {
     });
 
     if (!workspace) {
-      throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
+      throw new NotFoundException(
+        `Espacio de trabajo con ID ${workspaceId} no encontrado`,
+      );
     }
 
     // Check if the requesting user is an admin in the workspace
@@ -322,7 +338,7 @@ export class WorkspaceService {
 
     if (!requestingUserWorkspace) {
       throw new ForbiddenException(
-        'Only workspace admins can update user roles',
+        'Solo los administradores del espacio de trabajo pueden actualizar roles de usuarios',
       );
     }
 
@@ -337,7 +353,9 @@ export class WorkspaceService {
     });
 
     if (!userToUpdateWorkspace) {
-      throw new NotFoundException(`User is not a member of this workspace`);
+      throw new NotFoundException(
+        `El usuario no es miembro de este espacio de trabajo`,
+      );
     }
 
     // If demoting from admin to member, ensure there's at least one other admin
@@ -354,7 +372,7 @@ export class WorkspaceService {
 
       if (adminCount <= 1) {
         throw new ForbiddenException(
-          'Cannot demote the last admin in a workspace',
+          'No se puede degradar al último administrador del espacio de trabajo',
         );
       }
     }
@@ -380,7 +398,9 @@ export class WorkspaceService {
     });
 
     if (!workspace) {
-      throw new NotFoundException(`Workspace with ID ${workspaceId} not found`);
+      throw new NotFoundException(
+        `Espacio de trabajo con ID ${workspaceId} no encontrado`,
+      );
     }
 
     // Check if the requesting user is a member of the workspace
@@ -395,7 +415,7 @@ export class WorkspaceService {
 
     if (!userWorkspace) {
       throw new ForbiddenException(
-        'You must be a member of the workspace to view its users',
+        'Debes ser miembro del espacio de trabajo para ver sus usuarios',
       );
     }
 
