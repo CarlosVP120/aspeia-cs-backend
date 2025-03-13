@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "SystemRole" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'USER');
+CREATE TYPE "SystemRole" AS ENUM ('ADMIN', 'USER');
 
 -- CreateEnum
 CREATE TYPE "WorkspaceRole" AS ENUM ('ADMIN', 'MEMBER');
