@@ -2,11 +2,11 @@ version: '3.8'
 
 services:
   db:
-    container_name: aspeiacs-postgres
+    container_name: aspeiacs-backend-db
     image: postgres:latest
     environment:
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 36112154
+      POSTGRES_PASSWORD: Aspe1aCS2025
       POSTGRES_DB: ASPEIA_CS
     ports:
       - '5432:5432'

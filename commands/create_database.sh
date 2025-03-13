@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Set variables
-CONTAINER_NAME="aspeiacs-postgres"
+CONTAINER_NAME="aspeiacs-backend-db"
 POSTGRES_USER="admin"
-POSTGRES_PASSWORD="36112154"
+POSTGRES_PASSWORD="Aspe1aCS2025"
 POSTGRES_DB="ASPEIA_CS"
 
 # Run PostgreSQL container

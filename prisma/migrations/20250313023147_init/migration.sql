@@ -1,37 +1,15 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "SystemRole" AS ENUM ('SUPER_ADMIN', 'ADMIN', 'USER');
 
-  - You are about to drop the `USUARIO` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `USUARIO_WORKSPACE` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `WORKSPACE` table. If the table is not empty, all the data it contains will be lost.
-
-*/
 -- CreateEnum
 CREATE TYPE "WorkspaceRole" AS ENUM ('ADMIN', 'MEMBER');
-
--- DropForeignKey
-ALTER TABLE "USUARIO_WORKSPACE" DROP CONSTRAINT "USUARIO_WORKSPACE_usuarioId_fkey";
-
--- DropForeignKey
-ALTER TABLE "USUARIO_WORKSPACE" DROP CONSTRAINT "USUARIO_WORKSPACE_workspaceId_fkey";
-
--- DropTable
-DROP TABLE "USUARIO";
-
--- DropTable
-DROP TABLE "USUARIO_WORKSPACE";
-
--- DropTable
-DROP TABLE "WORKSPACE";
-
--- DropEnum
-DROP TYPE "WORKSPACE_ROLE";
 
 -- CreateTable
 CREATE TABLE "Usuario" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "role" "SystemRole" NOT NULL DEFAULT 'USER',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
