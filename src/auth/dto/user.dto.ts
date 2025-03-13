@@ -16,6 +16,8 @@ export class UserDto {
   @Expose()
   updatedAt: Date;
 
+  @Expose()
+  role: string;
   constructor(partial: Partial<UserDto>) {
     Object.assign(this, partial);
   }
