@@ -15,6 +15,7 @@ async function main() {
     create: {
       email: process.env.SUPER_ADMIN_EMAIL || 'super@aspeiacs.com',
       password: hashedPassword,
+      name: 'Super Admin',
       role: 'ADMIN',
     },
   });

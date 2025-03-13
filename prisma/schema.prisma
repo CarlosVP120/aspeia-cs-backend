@@ -22,6 +22,7 @@ model Usuario {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
+  name      String?
   role      SystemRole @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

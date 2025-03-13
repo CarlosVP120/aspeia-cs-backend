@@ -11,6 +11,9 @@ export class UserDto {
   password: string;
 
   @Expose()
+  name?: string;
+
+  @Expose()
   createdAt: Date;
 
   @Expose()

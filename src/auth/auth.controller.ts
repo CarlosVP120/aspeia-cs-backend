@@ -23,7 +23,11 @@ export class AuthController {
 
   @Post('signup')
   async signUp(@Body() signupDto: SignupDto) {
-    return this.authService.signUp(signupDto.email, signupDto.password);
+    return this.authService.signUp(
+      signupDto.email,
+      signupDto.password,
+      signupDto.name,
+    );
   }
 
   @Post('signin')

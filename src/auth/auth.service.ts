@@ -42,7 +42,11 @@ export class AuthService {
     });
   }
 
-  async signUp(email: string, password: string): Promise<UserResponseDto> {
+  async signUp(
+    email: string,
+    password: string,
+    name?: string,
+  ): Promise<UserResponseDto> {
     // Check if user already exists
     const existingUser = await this.prisma.usuario.findUnique({
       where: { email },
@@ -57,7 +61,11 @@ export class AuthService {
 
     // Create the user
     const user = await this.prisma.usuario.create({
-      data: { email, password: hashedPassword },
+      data: {
+        email,
+        password: hashedPassword,
+        name, // Include name in the user creation
+      },
     });
 
     const token = this.generateToken(user.id, user.email);
