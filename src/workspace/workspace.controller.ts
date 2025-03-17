@@ -20,6 +20,7 @@ import {
   UpdateWorkspaceDto,
   AddUserToWorkspaceDto,
   UpdateUserWorkspaceRoleDto,
+  BulkAddUsersToWorkspaceDto,
 } from './dto/workspace.dto';
 
 @Controller('workspaces')
@@ -85,10 +86,46 @@ export class WorkspaceController {
   ) {
     const completeDto: AddUserToWorkspaceDto = {
       workspaceId: parseInt(workspaceId),
-      usuarioId: parseInt(userId),
       ...addUserDto,
     };
+
+    // Check if userId is a number (ID) or string (email)
+    if (!isNaN(Number(userId))) {
+      completeDto.usuarioId = parseInt(userId);
+    } else {
+      completeDto.email = userId;
+    }
+
     await this.workspaceService.addUserToWorkspace(completeDto, req.user.id);
+  }
+
+  @Post(':workspaceId/users')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async addUserToWorkspaceByBody(
+    @Param('workspaceId') workspaceId: string,
+    @Body() addUserDto: Partial<AddUserToWorkspaceDto>,
+    @Req() req: any,
+  ) {
+    const completeDto: AddUserToWorkspaceDto = {
+      workspaceId: parseInt(workspaceId),
+      ...addUserDto,
+    };
+
+    await this.workspaceService.addUserToWorkspace(completeDto, req.user.id);
+  }
+
+  @Post(':workspaceId/users/bulk')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async bulkAddUsersToWorkspace(
+    @Param('workspaceId') workspaceId: string,
+    @Body() bulkAddDto: BulkAddUsersToWorkspaceDto,
+    @Req() req: any,
+  ) {
+    await this.workspaceService.bulkAddUsersToWorkspace(
+      parseInt(workspaceId),
+      bulkAddDto.users,
+      req.user.id,
+    );
   }
 
   @Delete(':workspaceId/users/:userId')
