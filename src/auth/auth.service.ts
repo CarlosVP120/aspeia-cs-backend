@@ -3,12 +3,13 @@ import {
   NotFoundException,
   UnauthorizedException,
   ConflictException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/auth.dto';
-import { UserDto, UserResponseDto } from './dto/user.dto';
+import { UserDto, UserResponseDto, UpdateUserDto } from './dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -46,6 +47,7 @@ export class AuthService {
     email: string,
     password: string,
     name?: string,
+    isSupervisor?: boolean,
   ): Promise<UserResponseDto> {
     // Check if user already exists
     const existingUser = await this.prisma.usuario.findUnique({
@@ -65,6 +67,7 @@ export class AuthService {
         email,
         password: hashedPassword,
         name, // Include name in the user creation
+        ...(isSupervisor !== undefined && { isSupervisor }), // Include isSupervisor if provided
       },
     });
 
@@ -93,6 +96,77 @@ export class AuthService {
     }
 
     return new UserDto(user);
+  }
+
+  async updateUser(id: number, updateUserDto: UpdateUserDto) {
+    // Check if user exists
+    const user = await this.prisma.usuario.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    // Check if email is being updated and if it's already in use
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      const existingUser = await this.prisma.usuario.findUnique({
+        where: { email: updateUserDto.email },
+      });
+
+      if (existingUser) {
+        throw new ConflictException('El correo electrónico ya está en uso');
+      }
+    }
+
+    // Hash password if provided
+    let hashedPassword;
+    if (updateUserDto.password) {
+      hashedPassword = await this.hashPassword(updateUserDto.password);
+    }
+
+    // Update user with new data
+    const updatedUser = await this.prisma.usuario.update({
+      where: { id },
+      data: {
+        ...(updateUserDto.name && { name: updateUserDto.name }),
+        ...(updateUserDto.email && { email: updateUserDto.email }),
+        ...(hashedPassword && { password: hashedPassword }),
+        ...(updateUserDto.isSupervisor !== undefined && {
+          isSupervisor: updateUserDto.isSupervisor,
+        }),
+      },
+    });
+
+    return new UserDto(updatedUser);
+  }
+
+  async deleteUser(id: number) {
+    // Check if user exists
+    const user = await this.prisma.usuario.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    // Check if user has workspace associations
+    const workspaceAssociations = await this.prisma.usuarioWorkspace.findMany({
+      where: { usuarioId: id },
+    });
+
+    if (workspaceAssociations.length > 0) {
+      // Delete all workspace associations first
+      await this.prisma.usuarioWorkspace.deleteMany({
+        where: { usuarioId: id },
+      });
+    }
+
+    // Delete the user
+    await this.prisma.usuario.delete({
+      where: { id },
+    });
   }
 
   private generateToken(

@@ -1,4 +1,11 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  IsBoolean,
+  IsOptional,
+} from 'class-validator';
 
 export class LoginDto {
   @IsEmail(
@@ -34,4 +41,8 @@ export class SignupDto {
 
   @IsString({ message: 'El nombre debe ser una cadena de texto' })
   name?: string; // Optional field to maintain backward compatibility
+
+  @IsOptional()
+  @IsBoolean({ message: 'El campo isSupervisor debe ser un booleano' })
+  isSupervisor?: boolean; // Optional field for making a user a supervisor
 }

@@ -1,4 +1,5 @@
 import { Exclude, Expose, Transform } from 'class-transformer';
+import { IsEmail, IsString, IsBoolean, IsOptional } from 'class-validator';
 
 export class UserDto {
   @Expose()
@@ -25,6 +26,24 @@ export class UserDto {
   constructor(partial: Partial<UserDto>) {
     Object.assign(this, partial);
   }
+}
+
+export class UpdateUserDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  password?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isSupervisor?: boolean;
 }
 
 export class UserResponseDto {
