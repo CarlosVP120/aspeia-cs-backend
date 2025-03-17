@@ -75,13 +75,20 @@ export class WorkspaceController {
   }
 
   // User-Workspace operations
-  @Post('users')
+  @Post(':workspaceId/users/:userId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async addUserToWorkspace(
-    @Body() addUserDto: AddUserToWorkspaceDto,
+    @Param('workspaceId') workspaceId: string,
+    @Param('userId') userId: string,
+    @Body() addUserDto: Partial<AddUserToWorkspaceDto>,
     @Req() req: any,
   ) {
-    await this.workspaceService.addUserToWorkspace(addUserDto, req.user.id);
+    const completeDto: AddUserToWorkspaceDto = {
+      workspaceId: parseInt(workspaceId),
+      usuarioId: parseInt(userId),
+      ...addUserDto,
+    };
+    await this.workspaceService.addUserToWorkspace(completeDto, req.user.id);
   }
 
   @Delete(':workspaceId/users/:userId')
