@@ -135,7 +135,11 @@ export class WorkspaceService {
       );
     }
 
-    // Check if user is an admin of the workspace
+    const user = await this.prisma.usuario.findUnique({
+      where: { id: userId },
+    });
+
+    // Check if user is an admin of the workspace or a supervisor
     const userWorkspace = await this.prisma.usuarioWorkspace.findFirst({
       where: {
         workspaceId: id,
@@ -146,9 +150,9 @@ export class WorkspaceService {
       },
     });
 
-    if (!userWorkspace) {
+    if (!userWorkspace && !user.isSupervisor) {
       throw new ForbiddenException(
-        'Solo los administradores del espacio de trabajo pueden actualizar los detalles',
+        'Solo los administradores del espacio de trabajo y supervisores pueden actualizar los detalles',
       );
     }
 
