@@ -13,20 +13,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum SystemRole {
-  SUPER
-  ADMIN
-  USER
-}
-
 model Usuario {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String?
-  role      SystemRole @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  password     String
+  name         String?
+  isSupervisor Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Many-to-many relation with Workspace
   workspaces UsuarioWorkspace[]

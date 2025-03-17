@@ -44,6 +44,9 @@ export class WorkspaceDto {
   @Expose()
   updatedAt: Date;
 
+  @Expose()
+  userRole?: WorkspaceRole;
+
   constructor(partial: Partial<WorkspaceDto>) {
     Object.assign(this, partial);
   }

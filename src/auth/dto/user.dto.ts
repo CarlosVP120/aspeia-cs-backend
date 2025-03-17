@@ -20,7 +20,8 @@ export class UserDto {
   updatedAt: Date;
 
   @Expose()
-  role: string;
+  isSupervisor: boolean;
+
   constructor(partial: Partial<UserDto>) {
     Object.assign(this, partial);
   }

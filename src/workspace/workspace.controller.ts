@@ -41,8 +41,8 @@ export class WorkspaceController {
   }
 
   @Get()
-  async getAllWorkspaces() {
-    return this.workspaceService.getAllWorkspaces();
+  async getAllWorkspaces(@Req() req: any) {
+    return this.workspaceService.getAllWorkspaces(req.user.id);
   }
 
   @Get('user')
@@ -51,8 +51,8 @@ export class WorkspaceController {
   }
 
   @Get(':id')
-  async getWorkspaceById(@Param('id') id: string) {
-    return this.workspaceService.getWorkspaceById(parseInt(id));
+  async getWorkspaceById(@Param('id') id: string, @Req() req: any) {
+    return this.workspaceService.getWorkspaceById(parseInt(id), req.user.id);
   }
 
   @Patch(':id')

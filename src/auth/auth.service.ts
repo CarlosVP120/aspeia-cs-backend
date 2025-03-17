@@ -32,7 +32,7 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const token = this.generateToken(user.id, user.email);
+    const token = this.generateToken(user.id, user.email, user.isSupervisor);
 
     const userDto = new UserDto(user);
 
@@ -68,7 +68,7 @@ export class AuthService {
       },
     });
 
-    const token = this.generateToken(user.id, user.email);
+    const token = this.generateToken(user.id, user.email, user.isSupervisor);
 
     const userDto = new UserDto(user);
 
@@ -95,8 +95,12 @@ export class AuthService {
     return new UserDto(user);
   }
 
-  private generateToken(userId: number, email: string): string {
-    const payload = { sub: userId, email };
+  private generateToken(
+    userId: number,
+    email: string,
+    isSupervisor: boolean,
+  ): string {
+    const payload = { sub: userId, email, isSupervisor };
     return this.jwtService.sign(payload);
   }
 
@@ -106,9 +110,6 @@ export class AuthService {
   }
 
   async refreshToken(user: any): Promise<UserResponseDto> {
-    // Generate a new token
-    const token = this.generateToken(user.id, user.email);
-
     // Get the full user object to return
     const userData = await this.prisma.usuario.findUnique({
       where: { id: user.id },
@@ -117,6 +118,13 @@ export class AuthService {
     if (!userData) {
       throw new NotFoundException('Usuario no encontrado');
     }
+
+    // Generate a new token
+    const token = this.generateToken(
+      userData.id,
+      userData.email,
+      userData.isSupervisor,
+    );
 
     const userDto = new UserDto(userData);
 

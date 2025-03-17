@@ -1,7 +1,4 @@
 -- CreateEnum
-CREATE TYPE "SystemRole" AS ENUM ('ADMIN', 'USER');
-
--- CreateEnum
 CREATE TYPE "WorkspaceRole" AS ENUM ('ADMIN', 'MEMBER');
 
 -- CreateTable
@@ -9,7 +6,8 @@ CREATE TABLE "Usuario" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "role" "SystemRole" NOT NULL DEFAULT 'USER',
+    "name" TEXT,
+    "isSupervisor" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

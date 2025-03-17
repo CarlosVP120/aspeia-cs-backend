@@ -44,12 +44,34 @@ export class WorkspaceService {
     return new WorkspaceDto(workspace);
   }
 
-  async getAllWorkspaces(): Promise<WorkspaceDto[]> {
+  async getAllWorkspaces(userId: number): Promise<WorkspaceDto[]> {
+    // Get all workspaces
     const workspaces = await this.prisma.workspace.findMany();
-    return workspaces.map((workspace) => new WorkspaceDto(workspace));
+
+    // Get the user's role in each workspace
+    const userWorkspaces = await this.prisma.usuarioWorkspace.findMany({
+      where: {
+        usuario: {
+          id: userId,
+        },
+      },
+    });
+
+    // Create a map of workspace ID to user role
+    const workspaceRoleMap = new Map();
+    userWorkspaces.forEach((uw) => {
+      workspaceRoleMap.set(uw.workspaceId, uw.role);
+    });
+
+    // Create DTOs with user roles
+    return workspaces.map((workspace) => {
+      const workspaceDto = new WorkspaceDto(workspace);
+      workspaceDto.userRole = workspaceRoleMap.get(workspace.id) || null;
+      return workspaceDto;
+    });
   }
 
-  async getWorkspaceById(id: number): Promise<WorkspaceDto> {
+  async getWorkspaceById(id: number, userId: number): Promise<WorkspaceDto> {
     const workspace = await this.prisma.workspace.findUnique({
       where: { id },
     });
@@ -60,7 +82,24 @@ export class WorkspaceService {
       );
     }
 
-    return new WorkspaceDto(workspace);
+    // Get the user's role in this workspace
+    const userWorkspace = await this.prisma.usuarioWorkspace.findUnique({
+      where: {
+        usuarioId_workspaceId: {
+          usuarioId: userId,
+          workspaceId: id,
+        },
+      },
+    });
+
+    const workspaceDto = new WorkspaceDto(workspace);
+
+    // Add the user's role if they are a member of this workspace
+    if (userWorkspace) {
+      workspaceDto.userRole = userWorkspace.role;
+    }
+
+    return workspaceDto;
   }
 
   async getUserWorkspaces(userId: number): Promise<WorkspaceDto[]> {
@@ -73,7 +112,11 @@ export class WorkspaceService {
       include: { workspace: true },
     });
 
-    return userWorkspaces.map((uw) => new WorkspaceDto(uw.workspace));
+    return userWorkspaces.map((uw) => {
+      const workspaceDto = new WorkspaceDto(uw.workspace);
+      workspaceDto.userRole = uw.role;
+      return workspaceDto;
+    });
   }
 
   async updateWorkspace(
