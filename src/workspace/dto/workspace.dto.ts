@@ -53,13 +53,9 @@ export class WorkspaceDto {
 }
 
 export class AddUserToWorkspaceDto {
-  @IsOptional()
+  @IsNotEmpty()
   @IsNumber()
-  usuarioId?: number;
-
-  @IsOptional()
-  @IsString()
-  email?: string;
+  usuarioId: number;
 
   @IsNotEmpty()
   @IsNumber()
@@ -68,25 +64,6 @@ export class AddUserToWorkspaceDto {
   @IsOptional()
   @IsEnum(WorkspaceRole)
   role?: WorkspaceRole;
-}
-
-export class UserIdentifierDto {
-  @IsOptional()
-  @IsNumber()
-  usuarioId?: number;
-
-  @IsOptional()
-  @IsString()
-  email?: string;
-
-  @IsOptional()
-  @IsEnum(WorkspaceRole)
-  role?: WorkspaceRole;
-}
-
-export class BulkAddUsersToWorkspaceDto {
-  @IsNotEmpty()
-  users: UserIdentifierDto[];
 }
 
 export class UpdateUserWorkspaceRoleDto {

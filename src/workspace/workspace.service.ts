@@ -234,39 +234,19 @@ export class WorkspaceService {
     addUserDto: AddUserToWorkspaceDto,
     requestingUserId: number,
   ): Promise<void> {
-    const {
-      usuarioId,
-      email,
-      workspaceId,
-      role = WorkspaceRole.MEMBER,
-    } = addUserDto;
+    const { usuarioId, workspaceId, role = WorkspaceRole.MEMBER } = addUserDto;
 
-    if (!usuarioId && !email) {
-      throw new NotFoundException(
-        'Se requiere ID de usuario o correo electrónico',
-      );
+    if (!usuarioId) {
+      throw new NotFoundException('Se requiere ID de usuario');
     }
 
-    // Find user by ID or email
-    let user;
-    if (usuarioId) {
-      user = await this.prisma.usuario.findUnique({
-        where: { id: usuarioId },
-      });
-      if (!user) {
-        throw new NotFoundException(
-          `Usuario con ID ${usuarioId} no encontrado`,
-        );
-      }
-    } else if (email) {
-      user = await this.prisma.usuario.findUnique({
-        where: { email },
-      });
-      if (!user) {
-        throw new NotFoundException(
-          `Usuario con correo ${email} no encontrado`,
-        );
-      }
+    // Find user by ID
+    const user = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`Usuario con ID ${usuarioId} no encontrado`);
     }
 
     // Check if the workspace exists
@@ -328,66 +308,6 @@ export class WorkspaceService {
         },
       },
     });
-  }
-
-  async bulkAddUsersToWorkspace(
-    workspaceId: number,
-    users: Array<{ usuarioId?: number; email?: string; role?: WorkspaceRole }>,
-    requestingUserId: number,
-  ): Promise<void> {
-    // Check if the workspace exists
-    const workspace = await this.prisma.workspace.findUnique({
-      where: { id: workspaceId },
-    });
-
-    if (!workspace) {
-      throw new NotFoundException(
-        `Espacio de trabajo con ID ${workspaceId} no encontrado`,
-      );
-    }
-
-    // Check if the requesting user is an admin in the workspace or if they are a supervisor
-    const requestingUser = await this.prisma.usuario.findUnique({
-      where: { id: requestingUserId },
-    });
-
-    const requestingUserWorkspace =
-      await this.prisma.usuarioWorkspace.findFirst({
-        where: {
-          workspaceId,
-          usuario: {
-            id: requestingUserId,
-          },
-          role: WorkspaceRole.ADMIN,
-        },
-      });
-
-    if (!requestingUserWorkspace && !requestingUser.isSupervisor) {
-      throw new ForbiddenException(
-        'Solo los administradores del espacio de trabajo pueden agregar usuarios',
-      );
-    }
-
-    // Process each user
-    for (const userInfo of users) {
-      try {
-        await this.addUserToWorkspace(
-          {
-            ...userInfo,
-            workspaceId,
-          },
-          requestingUserId,
-        );
-      } catch (error) {
-        // Skip users that are already in the workspace or not found
-        if (
-          !(error instanceof ConflictException) &&
-          !(error instanceof NotFoundException)
-        ) {
-          throw error;
-        }
-      }
-    }
   }
 
   async removeUserFromWorkspace(
