@@ -173,7 +173,12 @@ export class WorkspaceService {
       );
     }
 
-    // Check if user is an admin of the workspace
+    // Get the user to check if they are a supervisor
+    const user = await this.prisma.usuario.findUnique({
+      where: { id: userId },
+    });
+
+    // Check if user is a supervisor or an admin of the workspace
     const userWorkspace = await this.prisma.usuarioWorkspace.findFirst({
       where: {
         workspaceId: id,
@@ -184,13 +189,19 @@ export class WorkspaceService {
       },
     });
 
-    if (!userWorkspace) {
+    // Only allow deletion if user is a supervisor or an admin of the workspace
+    if (!userWorkspace && !user.isSupervisor) {
       throw new ForbiddenException(
-        'Solo los administradores del espacio de trabajo pueden eliminar espacios de trabajo',
+        'Solo los administradores del espacio de trabajo o supervisores pueden eliminar espacios de trabajo',
       );
     }
 
-    // Delete the workspace
+    // First delete all relations (UsuarioWorkspace entries)
+    await this.prisma.usuarioWorkspace.deleteMany({
+      where: { workspaceId: id },
+    });
+
+    // Then delete the workspace
     await this.prisma.workspace.delete({
       where: { id },
     });
@@ -223,7 +234,7 @@ export class WorkspaceService {
       );
     }
 
-    // Check if the requesting user is an admin in the workspace
+    // Check if the requesting user is an admin in the workspace or if the isSupervisor is true
     const requestingUserWorkspace =
       await this.prisma.usuarioWorkspace.findFirst({
         where: {
@@ -235,7 +246,7 @@ export class WorkspaceService {
         },
       });
 
-    if (!requestingUserWorkspace) {
+    if (!requestingUserWorkspace && !user.isSupervisor) {
       throw new ForbiddenException(
         'Solo los administradores del espacio de trabajo pueden agregar usuarios',
       );
