@@ -8,7 +8,7 @@ async function main() {
   const defaultPassword = process.env.SUPER_ADMIN_PASSWORD || 'Aspe1aCS2025';
   const hashedPassword = await bcrypt.hash(defaultPassword, saltRounds);
 
-  // Create admin if it doesn't exist
+  // Create super admin if it doesn't exist
   const admin = await prisma.usuario.upsert({
     where: { email: process.env.SUPER_ADMIN_EMAIL || 'super@aspeiacs.com' },
     update: {},
@@ -16,12 +16,12 @@ async function main() {
       email: process.env.SUPER_ADMIN_EMAIL || 'super@aspeiacs.com',
       password: hashedPassword,
       name: 'Super Admin',
-      role: 'ADMIN',
+      role: 'SUPER',
     },
   });
 
   console.log('Seed completed successfully');
-  console.log('Created admin:', admin.email);
+  console.log('Created super admin:', admin.email);
 }
 
 main()
