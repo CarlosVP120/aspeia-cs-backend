@@ -486,6 +486,8 @@ export class WorkspaceService {
       email: wu.usuario.email,
       role: wu.role,
       joinedAt: wu.createdAt,
+      isSupervisor: wu.usuario.isSupervisor,
+      name: wu.usuario.name,
     }));
   }
 }
