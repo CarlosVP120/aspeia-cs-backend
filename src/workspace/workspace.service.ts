@@ -162,7 +162,25 @@ export class WorkspaceService {
       data: updateWorkspaceDto,
     });
 
-    return new WorkspaceDto(updatedWorkspace);
+    // Create the DTO with the workspace data
+    const workspaceDto = new WorkspaceDto(updatedWorkspace);
+
+    // Get the user's role in this workspace
+    const userRole = await this.prisma.usuarioWorkspace.findUnique({
+      where: {
+        usuarioId_workspaceId: {
+          usuarioId: userId,
+          workspaceId: id,
+        },
+      },
+    });
+
+    // Add the user's role if they are a member of this workspace
+    if (userRole) {
+      workspaceDto.userRole = userRole.role;
+    }
+
+    return workspaceDto;
   }
 
   async deleteWorkspace(id: number, userId: number): Promise<void> {
