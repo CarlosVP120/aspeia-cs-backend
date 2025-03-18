@@ -43,7 +43,7 @@ model UsuarioWorkspace {
   usuarioId    Int
   workspace    Workspace  @relation(fields: [workspaceId], references: [id])
   workspaceId  Int
-  role         WorkspaceRole @default(MEMBER)
+  role         WorkspaceRole @default(CONSULTANT)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -53,6 +53,8 @@ model UsuarioWorkspace {
 }
 
 enum WorkspaceRole {
-  ADMIN
-  MEMBER
+  ADMINISTRATOR
+  MANAGER
+  CONSULTANT
+  SUPPORT_STAFF
 }

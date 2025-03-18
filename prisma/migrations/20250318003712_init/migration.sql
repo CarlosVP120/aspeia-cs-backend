@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "WorkspaceRole" AS ENUM ('ADMIN', 'MEMBER');
+CREATE TYPE "WorkspaceRole" AS ENUM ('ADMINISTRATOR', 'MANAGER', 'CONSULTANT', 'SUPPORT_STAFF');
 
 -- CreateTable
 CREATE TABLE "Usuario" (
@@ -29,7 +29,7 @@ CREATE TABLE "Workspace" (
 CREATE TABLE "UsuarioWorkspace" (
     "usuarioId" INTEGER NOT NULL,
     "workspaceId" INTEGER NOT NULL,
-    "role" "WorkspaceRole" NOT NULL DEFAULT 'MEMBER',
+    "role" "WorkspaceRole" NOT NULL DEFAULT 'CONSULTANT',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

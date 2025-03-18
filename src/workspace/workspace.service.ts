@@ -32,7 +32,7 @@ export class WorkspaceService {
         description,
         users: {
           create: {
-            role: WorkspaceRole.ADMIN,
+            role: WorkspaceRole.ADMINISTRATOR,
             usuario: {
               connect: { id: userId },
             },
@@ -146,7 +146,7 @@ export class WorkspaceService {
         usuario: {
           id: userId,
         },
-        role: WorkspaceRole.ADMIN,
+        role: WorkspaceRole.ADMINISTRATOR,
       },
     });
 
@@ -207,7 +207,7 @@ export class WorkspaceService {
         usuario: {
           id: userId,
         },
-        role: WorkspaceRole.ADMIN,
+        role: WorkspaceRole.ADMINISTRATOR,
       },
     });
 
@@ -234,7 +234,11 @@ export class WorkspaceService {
     addUserDto: AddUserToWorkspaceDto,
     requestingUserId: number,
   ): Promise<void> {
-    const { usuarioId, workspaceId, role = WorkspaceRole.MEMBER } = addUserDto;
+    const {
+      usuarioId,
+      workspaceId,
+      role = WorkspaceRole.CONSULTANT,
+    } = addUserDto;
 
     if (!usuarioId) {
       throw new NotFoundException('Se requiere ID de usuario');
@@ -272,7 +276,7 @@ export class WorkspaceService {
           usuario: {
             id: requestingUserId,
           },
-          role: WorkspaceRole.ADMIN,
+          role: WorkspaceRole.ADMINISTRATOR,
         },
       });
 
@@ -334,7 +338,7 @@ export class WorkspaceService {
           usuario: {
             id: requestingUserId,
           },
-          role: WorkspaceRole.ADMIN,
+          role: WorkspaceRole.ADMINISTRATOR,
         },
       });
 
@@ -361,11 +365,11 @@ export class WorkspaceService {
     }
 
     // Prevent removing the last admin
-    if (userToRemoveWorkspace.role === WorkspaceRole.ADMIN) {
+    if (userToRemoveWorkspace.role === WorkspaceRole.ADMINISTRATOR) {
       const adminCount = await this.prisma.usuarioWorkspace.count({
         where: {
           workspaceId,
-          role: WorkspaceRole.ADMIN,
+          role: WorkspaceRole.ADMINISTRATOR,
         },
       });
 
@@ -414,7 +418,7 @@ export class WorkspaceService {
           usuario: {
             id: requestingUserId,
           },
-          role: WorkspaceRole.ADMIN,
+          role: WorkspaceRole.ADMINISTRATOR,
         },
       });
 
@@ -442,13 +446,13 @@ export class WorkspaceService {
 
     // If demoting from admin to member, ensure there's at least one other admin
     if (
-      userToUpdateWorkspace.role === WorkspaceRole.ADMIN &&
-      role === WorkspaceRole.MEMBER
+      userToUpdateWorkspace.role === WorkspaceRole.ADMINISTRATOR &&
+      role === WorkspaceRole.CONSULTANT
     ) {
       const adminCount = await this.prisma.usuarioWorkspace.count({
         where: {
           workspaceId,
-          role: WorkspaceRole.ADMIN,
+          role: WorkspaceRole.ADMINISTRATOR,
         },
       });
 

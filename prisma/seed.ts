@@ -45,7 +45,7 @@ async function main() {
       data: {
         usuarioId: admin.id,
         workspaceId: defaultWorkspace.id,
-        role: WorkspaceRole.ADMIN,
+        role: WorkspaceRole.ADMINISTRATOR,
       },
     });
   }
