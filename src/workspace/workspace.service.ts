@@ -282,7 +282,7 @@ export class WorkspaceService {
 
     if (!requestingUserWorkspace && !requestingUser.isSupervisor) {
       throw new ForbiddenException(
-        'Solo los administradores del espacio de trabajo pueden agregar usuarios',
+        'Solo los administradores del espacio de trabajo o supervisores pueden agregar usuarios',
       );
     }
 
@@ -330,6 +330,11 @@ export class WorkspaceService {
       );
     }
 
+    // Get the requesting user to check if they are a supervisor
+    const requestingUser = await this.prisma.usuario.findUnique({
+      where: { id: requestingUserId },
+    });
+
     // Check if the requesting user is an admin in the workspace
     const requestingUserWorkspace =
       await this.prisma.usuarioWorkspace.findFirst({
@@ -342,9 +347,10 @@ export class WorkspaceService {
         },
       });
 
-    if (!requestingUserWorkspace) {
+    // Allow access if the user is either a workspace admin or a supervisor
+    if (!requestingUserWorkspace && !requestingUser.isSupervisor) {
       throw new ForbiddenException(
-        'Solo los administradores del espacio de trabajo pueden remover usuarios',
+        'Solo los administradores del espacio de trabajo o supervisores pueden remover usuarios',
       );
     }
 
@@ -410,6 +416,11 @@ export class WorkspaceService {
       );
     }
 
+    // Get the requesting user to check if they are a supervisor
+    const requestingUser = await this.prisma.usuario.findUnique({
+      where: { id: requestingUserId },
+    });
+
     // Check if the requesting user is an admin in the workspace
     const requestingUserWorkspace =
       await this.prisma.usuarioWorkspace.findFirst({
@@ -422,9 +433,10 @@ export class WorkspaceService {
         },
       });
 
-    if (!requestingUserWorkspace) {
+    // Allow access if the user is either a workspace admin or a supervisor
+    if (!requestingUserWorkspace && !requestingUser.isSupervisor) {
       throw new ForbiddenException(
-        'Solo los administradores del espacio de trabajo pueden actualizar roles de usuarios',
+        'Solo los administradores del espacio de trabajo o supervisores pueden actualizar roles de usuarios',
       );
     }
 
@@ -489,7 +501,12 @@ export class WorkspaceService {
       );
     }
 
-    // Check if the requesting user is a member of the workspace
+    // Check if the requesting user is a supervisor
+    const requestingUser = await this.prisma.usuario.findUnique({
+      where: { id: requestingUserId },
+    });
+
+    // Check if the requesting user is a member of the workspace or a supervisor
     const userWorkspace = await this.prisma.usuarioWorkspace.findFirst({
       where: {
         workspaceId,
@@ -499,9 +516,9 @@ export class WorkspaceService {
       },
     });
 
-    if (!userWorkspace) {
+    if (!userWorkspace && !requestingUser.isSupervisor) {
       throw new ForbiddenException(
-        'Debes ser miembro del espacio de trabajo para ver sus usuarios',
+        'Debes ser miembro del espacio de trabajo o supervisor para ver sus usuarios',
       );
     }
 
