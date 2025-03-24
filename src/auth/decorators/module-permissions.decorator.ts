@@ -1,6 +1,7 @@
 import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
 import { RequirePermissions } from './permissions.decorator';
 import { ModulePermissionGuard } from '../guards/module-permission.guard';
+import { JwtAuthGuard } from '../jwt/jwt-auth.guard';
 
 export const MODULE_KEY = 'module';
 
@@ -11,7 +12,7 @@ export function RequireModulePermissions(
   return applyDecorators(
     SetMetadata(MODULE_KEY, module),
     RequirePermissions(...permissions),
-    UseGuards(ModulePermissionGuard),
+    UseGuards(JwtAuthGuard, ModulePermissionGuard),
   );
 }
 
