@@ -3,7 +3,6 @@ import {
   NotFoundException,
   UnauthorizedException,
   ConflictException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
@@ -33,7 +32,7 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const token = this.generateToken(user.id, user.email, user.isSupervisor);
+    const token = this.generateToken(user.id, user.email);
 
     const userDto = new UserDto(user);
 
@@ -47,7 +46,6 @@ export class AuthService {
     email: string,
     password: string,
     name?: string,
-    isSupervisor?: boolean,
   ): Promise<UserResponseDto> {
     // Check if user already exists
     const existingUser = await this.prisma.usuario.findUnique({
@@ -66,12 +64,11 @@ export class AuthService {
       data: {
         email,
         password: hashedPassword,
-        name, // Include name in the user creation
-        ...(isSupervisor !== undefined && { isSupervisor }), // Include isSupervisor if provided
+        name,
       },
     });
 
-    const token = this.generateToken(user.id, user.email, user.isSupervisor);
+    const token = this.generateToken(user.id, user.email);
 
     const userDto = new UserDto(user);
 
@@ -132,9 +129,6 @@ export class AuthService {
         ...(updateUserDto.name && { name: updateUserDto.name }),
         ...(updateUserDto.email && { email: updateUserDto.email }),
         ...(hashedPassword && { password: hashedPassword }),
-        ...(updateUserDto.isSupervisor !== undefined && {
-          isSupervisor: updateUserDto.isSupervisor,
-        }),
       },
     });
 
@@ -151,30 +145,14 @@ export class AuthService {
       throw new NotFoundException('Usuario no encontrado');
     }
 
-    // Check if user has workspace associations
-    const workspaceAssociations = await this.prisma.usuarioWorkspace.findMany({
-      where: { usuarioId: id },
-    });
-
-    if (workspaceAssociations.length > 0) {
-      // Delete all workspace associations first
-      await this.prisma.usuarioWorkspace.deleteMany({
-        where: { usuarioId: id },
-      });
-    }
-
     // Delete the user
     await this.prisma.usuario.delete({
       where: { id },
     });
   }
 
-  private generateToken(
-    userId: number,
-    email: string,
-    isSupervisor: boolean,
-  ): string {
-    const payload = { sub: userId, email, isSupervisor };
+  private generateToken(userId: number, email: string): string {
+    const payload = { sub: userId, email };
     return this.jwtService.sign(payload);
   }
 
@@ -194,11 +172,7 @@ export class AuthService {
     }
 
     // Generate a new token
-    const token = this.generateToken(
-      userData.id,
-      userData.email,
-      userData.isSupervisor,
-    );
+    const token = this.generateToken(userData.id, userData.email);
 
     const userDto = new UserDto(userData);
 

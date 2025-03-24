@@ -18,43 +18,6 @@ model Usuario {
   email        String   @unique
   password     String
   name         String?
-  isSupervisor Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-
-  // Many-to-many relation with Workspace
-  workspaces UsuarioWorkspace[]
-}
-
-model Workspace {
-  id          Int       @id @default(autoincrement())
-  name        String
-  description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // Many-to-many relation with Usuario
-  users       UsuarioWorkspace[]
-}
-
-// Junction table to handle the many-to-many relationship between Usuario and Workspace
-model UsuarioWorkspace {
-  usuario      Usuario    @relation(fields: [usuarioId], references: [id])
-  usuarioId    Int
-  workspace    Workspace  @relation(fields: [workspaceId], references: [id])
-  workspaceId  Int
-  role         WorkspaceRole @default(CONSULTANT)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-
-  @@id([usuarioId, workspaceId])
-  @@index([usuarioId])
-  @@index([workspaceId])
-}
-
-enum WorkspaceRole {
-  ADMINISTRATOR
-  MANAGER
-  CONSULTANT
-  SUPPORT_STAFF
 }

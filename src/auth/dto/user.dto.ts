@@ -20,9 +20,6 @@ export class UserDto {
   @Expose()
   updatedAt: Date;
 
-  @Expose()
-  isSupervisor: boolean;
-
   constructor(partial: Partial<UserDto>) {
     Object.assign(this, partial);
   }
@@ -40,10 +37,6 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   password?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  isSupervisor?: boolean;
 }
 
 export class UserResponseDto {

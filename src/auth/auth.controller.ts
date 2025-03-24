@@ -31,7 +31,6 @@ export class AuthController {
       signupDto.email,
       signupDto.password,
       signupDto.name,
-      signupDto.isSupervisor,
     );
   }
 
