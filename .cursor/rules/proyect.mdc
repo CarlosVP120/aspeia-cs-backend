@@ -5,6 +5,9 @@ alwaysApply: true
 ---
 Aspeia CS (Consulting Suite) is a comprehensive B2B Consulting Software Suite that requires integrating several key modules to streamline operations, enhance client management, and improve overall efficiency. Below is an outline of essential modules and their core functionalities:
 
+**IMPORTANT**
+After each implementation or change, make sure to update the @system-architecture.md to make sure it is always updated with the code.
+
 **1. Client Relationship Management (CRM):**
 
 - **App to replicate:** Pipedrive CRM
@@ -55,3 +58,4 @@ Aspeia CS (Consulting Suite) is a comprehensive B2B Consulting Software Suite th
 
 - **Third-Party Software Integration:** Ensure compatibility with existing tools such as email platforms, calendars, and document management systems.
 - **API Access:** Provide APIs for custom integrations and extended functionalities.
+
