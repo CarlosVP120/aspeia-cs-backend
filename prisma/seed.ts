@@ -9,7 +9,7 @@ async function main() {
   const hashedPassword = await bcrypt.hash(defaultPassword, saltRounds);
 
   // Create admin if it doesn't exist
-  const admin = await prisma.usuario.upsert({
+  const admin = await prisma.user.upsert({
     where: { email: process.env.SUPER_ADMIN_EMAIL || 'super@aspeiacs.com' },
     update: {},
     create: {

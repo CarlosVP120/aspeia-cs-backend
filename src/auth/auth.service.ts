@@ -19,7 +19,7 @@ export class AuthService {
 
   async signIn(loginDto: LoginDto): Promise<UserResponseDto> {
     const { email, password } = loginDto;
-    const user = await this.prisma.usuario.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { email },
     });
 
@@ -48,7 +48,7 @@ export class AuthService {
     name?: string,
   ): Promise<UserResponseDto> {
     // Check if user already exists
-    const existingUser = await this.prisma.usuario.findUnique({
+    const existingUser = await this.prisma.user.findUnique({
       where: { email },
     });
 
@@ -60,7 +60,7 @@ export class AuthService {
     const hashedPassword = await this.hashPassword(password);
 
     // Create the user
-    const user = await this.prisma.usuario.create({
+    const user = await this.prisma.user.create({
       data: {
         email,
         password: hashedPassword,
@@ -79,12 +79,12 @@ export class AuthService {
   }
 
   async getAllUsers() {
-    const users = await this.prisma.usuario.findMany();
+    const users = await this.prisma.user.findMany();
     return users.map((user) => new UserDto(user));
   }
 
   async getUserById(id: number) {
-    const user = await this.prisma.usuario.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id },
     });
 
@@ -97,7 +97,7 @@ export class AuthService {
 
   async updateUser(id: number, updateUserDto: UpdateUserDto) {
     // Check if user exists
-    const user = await this.prisma.usuario.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id },
     });
 
@@ -107,7 +107,7 @@ export class AuthService {
 
     // Check if email is being updated and if it's already in use
     if (updateUserDto.email && updateUserDto.email !== user.email) {
-      const existingUser = await this.prisma.usuario.findUnique({
+      const existingUser = await this.prisma.user.findUnique({
         where: { email: updateUserDto.email },
       });
 
@@ -123,7 +123,7 @@ export class AuthService {
     }
 
     // Update user with new data
-    const updatedUser = await this.prisma.usuario.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id },
       data: {
         ...(updateUserDto.name && { name: updateUserDto.name }),
@@ -137,7 +137,7 @@ export class AuthService {
 
   async deleteUser(id: number) {
     // Check if user exists
-    const user = await this.prisma.usuario.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id },
     });
 
@@ -146,7 +146,7 @@ export class AuthService {
     }
 
     // Delete the user
-    await this.prisma.usuario.delete({
+    await this.prisma.user.delete({
       where: { id },
     });
   }
@@ -163,7 +163,7 @@ export class AuthService {
 
   async refreshToken(user: any): Promise<UserResponseDto> {
     // Get the full user object to return
-    const userData = await this.prisma.usuario.findUnique({
+    const userData = await this.prisma.user.findUnique({
       where: { id: user.id },
     });
 
