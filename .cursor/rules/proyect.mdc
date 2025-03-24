@@ -1,0 +1,57 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Aspeia CS (Consulting Suite) is a comprehensive B2B Consulting Software Suite that requires integrating several key modules to streamline operations, enhance client management, and improve overall efficiency. Below is an outline of essential modules and their core functionalities:
+
+**1. Client Relationship Management (CRM):**
+
+- **App to replicate:** Pipedrive CRM
+
+- **Contact Management:** Maintain detailed profiles of clients, including contact information, interaction history, and preferences.
+- **Lead Tracking:** Monitor potential clients through the sales pipeline, from initial contact to conversion.
+- **Analytics and Reporting:** Generate insights into client interactions and sales performance to inform strategic decisions.
+
+**2. Project Management:**
+
+- **App to replicate:** Asana
+
+- **Task Assignment and Tracking:** Allocate tasks to team members, set deadlines, and monitor progress.
+- **Resource Management:** Optimize the allocation of resources to ensure project efficiency.
+- **Collaboration Tools:** Facilitate communication among team members through shared documents and discussion forums.
+
+**3. Communication and Collaboration:**
+
+- **Internal Messaging:** Enable real-time chat and discussion channels for teams.
+- **Video Conferencing:** Support virtual meetings with clients and team members.
+- **File Sharing:** Allow secure sharing and storage of documents and project files.
+
+**4. Accounting and Invoicing:**
+
+- **Billing Management:** Generate and send invoices, track payments, and manage accounts receivable.
+- **Expense Tracking:** Monitor business expenses and integrate them into financial reports.
+- **Financial Reporting:** Produce financial statements and performance reports for analysis.
+
+**5. Proposal Management:**
+
+- **Template Library:** Provide customizable templates for proposals and contracts.
+- **Automated Workflows:** Streamline the proposal creation and approval process.
+- **Version Control:** Maintain records of revisions and updates to proposals.
+
+**6. Time Tracking and Scheduling:**
+
+- **Time Logs:** Record billable and non-billable hours spent on projects.
+- **Calendar Integration:** Sync schedules with personal and team calendars.
+- **Reminders and Notifications:** Set alerts for upcoming deadlines and meetings.
+
+**7. Analytics and Reporting:**
+
+- **Customizable Dashboards:** Visualize key performance indicators and metrics.
+- **Data Exporting:** Allow data to be exported in various formats for external analysis.
+- **Trend Analysis:** Identify patterns and trends to inform business strategies.
+
+**8. Integration Capabilities:**
+
+- **Third-Party Software Integration:** Ensure compatibility with existing tools such as email platforms, calendars, and document management systems.
+- **API Access:** Provide APIs for custom integrations and extended functionalities.
