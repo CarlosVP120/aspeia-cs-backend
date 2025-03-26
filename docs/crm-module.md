@@ -1,257 +1,30 @@
-# System Architecture Documentation
+# CRM Module Documentation
 
 ## Table of Contents
 
-- [ABAC (Attribute-Based Access Control) System](#abac-system)
-  - [Overview](#abac-overview)
-  - [Database Schema](#abac-schema)
-  - [Permission Structure](#permission-structure)
-  - [Role Management](#role-management)
-  - [Permission Implementation](#permission-implementation)
-- [CRM Module](#crm-module)
-  - [Overview](#crm-overview)
-  - [Database Schema](#crm-schema)
-  - [Pipeline Management](#pipeline-management)
-  - [Status Management](#status-management)
-  - [Permission Sets](#permission-sets)
+- [Overview](#overview)
+- [Database Schema](#database-schema)
+- [Pipeline Management](#pipeline-management)
+- [Status Management](#status-management)
+- [Permission Sets](#permission-sets)
+- [API Endpoints](#api-endpoints)
+  - [Lead Endpoints](#lead-endpoints)
+  - [Deal Endpoints](#deal-endpoints)
+  - [Organization Endpoints](#organization-endpoints)
+  - [Person Endpoints](#person-endpoints)
+- [Default Roles](#default-roles)
 
-## ABAC System
+<a id="overview"></a>
 
-### Overview
-
-The Attribute-Based Access Control (ABAC) system provides fine-grained access control across all modules of the application. It implements a modular permission system where permissions are grouped by module and can be assigned to roles.
-
-### Database Schema
-
-#### Module Table
-
-```sql
-Table: Module
-- id: UUID (Primary Key)
-- name: String (Unique)
-- description: String
-- createdAt: DateTime
-- updatedAt: DateTime
-```
-
-#### Permission Table
-
-```sql
-Table: Permission
-- id: UUID (Primary Key)
-- name: String (Unique) -- Format: "module.resource.action"
-- description: String
-- createdAt: DateTime
-- updatedAt: DateTime
-```
-
-#### Role Table
-
-```sql
-Table: Role
-- id: UUID (Primary Key)
-- name: String
-- description: String
-- moduleId: UUID (Foreign Key -> Module)
-- createdAt: DateTime
-- updatedAt: DateTime
-Unique Constraint: [name, moduleId]
-```
-
-#### RolePermission Table
-
-```sql
-Table: RolePermission
-- id: UUID (Primary Key)
-- roleId: UUID (Foreign Key -> Role)
-- permissionId: UUID (Foreign Key -> Permission)
-- createdAt: DateTime
-- updatedAt: DateTime
-Unique Constraint: [roleId, permissionId]
-```
-
-#### UserRole Table
-
-```sql
-Table: UserRole
-- id: UUID (Primary Key)
-- userId: UUID (Foreign Key -> User)
-- roleId: UUID (Foreign Key -> Role)
-- createdAt: DateTime
-- updatedAt: DateTime
-Unique Constraint: [userId, roleId]
-```
-
-### Permission Structure
-
-Permissions follow a standardized naming convention:
-
-```
-module.resource.action
-
-Examples:
-- crm.deal.create
-- crm.pipeline.manage_stages
-- pm.project.update
-```
-
-### Role Management
-
-The system supports hierarchical roles with inherited permissions:
-
-- Module-specific roles (e.g., CRM Admin, Sales Manager)
-- Cross-module roles (e.g., System Admin)
-- Custom roles with specific permission sets
-
-### Permission Implementation
-
-#### Module Permission Guard
-
-The `ModulePermissionGuard` provides a flexible, module-aware permission checking system:
-
-```typescript
-@Injectable()
-class ModulePermissionGuard implements CanActivate {
-  constructor(
-    private reflector: Reflector,
-    private prisma: PrismaService,
-  ) {}
-
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Extracts required permissions and module from decorators
-    // Validates user's permissions against the module
-    // Throws appropriate exceptions if permissions are missing
-  }
-}
-```
-
-Key Features:
-
-- Module-aware permission checking
-- Automatic role and permission validation
-- Supports multiple permissions per endpoint
-- Throws clear error messages for missing permissions
-- Integrates with NestJS's dependency injection
-
-#### Permission Decorators
-
-##### Module Permissions Decorator
-
-The main decorator for requiring module-specific permissions:
-
-```typescript
-export const RequireModulePermissions = (
-  module: string,
-  ...permissions: string[]
-) => {
-  return applyDecorators(
-    SetMetadata(MODULE_KEY, module),
-    SetMetadata(PERMISSIONS_KEY, permissions),
-    UseGuards(ModulePermissionGuard),
-  );
-};
-```
-
-##### Convenience Decorators
-
-Module-specific convenience decorators for common use cases:
-
-```typescript
-// CRM Module
-export const RequireCRMPermissions = (...permissions: string[]) =>
-  RequireModulePermissions('CRM', ...permissions);
-
-// Project Management Module
-export const RequirePMPermissions = (...permissions: string[]) =>
-  RequireModulePermissions('PM', ...permissions);
-
-// Accounting Module
-export const RequireACCPermissions = (...permissions: string[]) =>
-  RequireModulePermissions('ACC', ...permissions);
-```
-
-#### Usage Examples
-
-##### Basic Permission Check
-
-```typescript
-@Controller('deals')
-export class DealsController {
-  @Get()
-  @RequireCRMPermissions('crm.deal.read')
-  findAll() {
-    // Implementation
-  }
-
-  @Post()
-  @RequireCRMPermissions('crm.deal.create')
-  create(@Body() createDealDto: CreateDealDto) {
-    // Implementation
-  }
-}
-```
-
-##### Multiple Permissions
-
-```typescript
-@Put(':id/stage')
-@RequireCRMPermissions('crm.deal.update', 'crm.deal.change_stage')
-updateStage(@Param('id') id: string, @Body() updateStageDto: UpdateStageDto) {
-  // Implementation
-}
-```
-
-##### Generic Module Permissions
-
-```typescript
-@Delete(':id')
-@RequireModulePermissions('CRM', 'crm.deal.delete')
-remove(@Param('id') id: string) {
-  // Implementation
-}
-```
-
-#### Error Handling
-
-The guard provides clear error messages for different scenarios:
-
-1. Missing Module:
-
-```typescript
-throw new BadRequestException(
-  'No module specified when permissions are required',
-);
-```
-
-2. Invalid Permissions:
-
-```typescript
-throw new BadRequestException('Invalid permissions specified');
-```
-
-3. Unauthorized Access:
-
-```typescript
-throw new ForbiddenException('User does not have the required permissions');
-```
-
-4. Missing User or Roles:
-
-```typescript
-throw new ForbiddenException(
-  'User does not have any roles for the specified module',
-);
-```
-
-## CRM Module
-
-### Overview
+## Overview
 
 The Customer Relationship Management (CRM) module provides comprehensive tools for managing customer relationships, sales pipelines, and business processes.
 
-### Database Schema
+<a id="database-schema"></a>
 
-#### Organization Table
+## Database Schema
+
+### Organization Table
 
 ```sql
 Table: CRMOrganization
@@ -265,7 +38,7 @@ Table: CRMOrganization
 - updatedAt: DateTime
 ```
 
-#### Person Table
+### Person Table
 
 ```sql
 Table: CRMPerson
@@ -279,9 +52,11 @@ Table: CRMPerson
 - updatedAt: DateTime
 ```
 
-#### Pipeline Management Tables
+<a id="pipeline-management"></a>
 
-##### CRMPipeline Table
+## Pipeline Management
+
+### CRMPipeline Table
 
 ```sql
 Table: CRMPipeline
@@ -295,7 +70,7 @@ Table: CRMPipeline
 - updatedAt: DateTime
 ```
 
-##### CRMPipelineStage Table
+### CRMPipelineStage Table
 
 ```sql
 Table: CRMPipelineStage
@@ -311,9 +86,11 @@ Table: CRMPipelineStage
 Unique Constraint: [name, pipelineId]
 ```
 
-#### Status Management
+<a id="status-management"></a>
 
-##### CRMStatusType Enum
+## Status Management
+
+### CRMStatusType Enum
 
 ```sql
 Enum: CRMStatusType
@@ -323,7 +100,7 @@ Enum: CRMStatusType
 - ACTIVITY
 ```
 
-##### CRMStatus Table
+### CRMStatus Table
 
 ```sql
 Table: CRMStatus
@@ -340,9 +117,9 @@ Table: CRMStatus
 Unique Constraint: [name, type]
 ```
 
-#### Business Objects
+### Business Objects
 
-##### CRMLead Table
+#### CRMLead Table
 
 ```sql
 Table: CRMLead
@@ -356,7 +133,7 @@ Table: CRMLead
 - updatedAt: DateTime
 ```
 
-##### CRMDeal Table
+#### CRMDeal Table
 
 ```sql
 Table: CRMDeal
@@ -374,9 +151,11 @@ Table: CRMDeal
 - updatedAt: DateTime
 ```
 
-### Permission Sets
+<a id="permission-sets"></a>
 
-#### Organization Permissions
+## Permission Sets
+
+### Organization Permissions
 
 ```typescript
 // Organization Permissions
@@ -386,7 +165,7 @@ Table: CRMDeal
 'crm.organization.delete'; // Delete organizations
 ```
 
-#### Person Permissions
+### Person Permissions
 
 ```typescript
 // Person Permissions
@@ -396,7 +175,7 @@ Table: CRMDeal
 'crm.person.delete'; // Delete contacts
 ```
 
-#### Lead Permissions
+### Lead Permissions
 
 ```typescript
 // Lead Permissions
@@ -407,7 +186,7 @@ Table: CRMDeal
 'crm.lead.convert'; // Convert leads to deals
 ```
 
-#### Deal Permissions
+### Deal Permissions
 
 ```typescript
 // Deal Permissions
@@ -418,7 +197,7 @@ Table: CRMDeal
 'crm.deal.change_stage'; // Move deals between stages
 ```
 
-#### Project Permissions
+### Project Permissions
 
 ```typescript
 // Project Permissions
@@ -428,7 +207,7 @@ Table: CRMDeal
 'crm.project.delete'; // Delete projects
 ```
 
-#### Activity Permissions
+### Activity Permissions
 
 ```typescript
 // Activity Permissions
@@ -438,7 +217,7 @@ Table: CRMDeal
 'crm.activity.delete'; // Delete activities
 ```
 
-#### Product Permissions
+### Product Permissions
 
 ```typescript
 // Product Permissions
@@ -448,7 +227,7 @@ Table: CRMDeal
 'crm.product.delete'; // Delete products
 ```
 
-#### Email Permissions
+### Email Permissions
 
 ```typescript
 // Email Permissions
@@ -457,7 +236,7 @@ Table: CRMDeal
 'crm.email.delete'; // Delete emails
 ```
 
-#### Report Permissions
+### Report Permissions
 
 ```typescript
 // Report Permissions
@@ -465,14 +244,14 @@ Table: CRMDeal
 'crm.dashboard.view'; // View CRM dashboard
 ```
 
-#### Settings Permissions
+### Settings Permissions
 
 ```typescript
 // Settings Permissions
 'crm.settings.manage'; // Manage CRM settings
 ```
 
-#### Pipeline Management Permissions
+### Pipeline Management Permissions
 
 ```typescript
 // Pipeline Permissions
@@ -484,7 +263,7 @@ Table: CRMDeal
 'crm.pipeline.set_default'; // Set default pipeline
 ```
 
-#### Status Management Permissions
+### Status Management Permissions
 
 ```typescript
 // Status Permissions
@@ -495,9 +274,169 @@ Table: CRMDeal
 'crm.status.set_default'; // Set default status
 ```
 
-### Default Roles
+<a id="api-endpoints"></a>
 
-#### CRM Admin
+## API Endpoints
+
+<a id="lead-endpoints"></a>
+
+### Lead Endpoints
+
+The Lead API provides endpoints for managing sales leads in the CRM system. All endpoints are prefixed with `/api/v1/crm/leads`.
+
+#### Create a Lead
+
+```
+POST /api/v1/crm/leads
+```
+
+- **Permission Required**: `crm.lead.create`
+- **Request Body**:
+  ```json
+  {
+    "title": "New Lead Example",
+    "value": 10000,
+    "statusId": 1, // Optional - will use default if not provided
+    "organizationId": 1, // Optional
+    "personId": 1 // Optional
+  }
+  ```
+- **Response**: Returns the created lead with its relations (status, organization, person)
+
+#### Get All Leads
+
+```
+GET /api/v1/crm/leads
+```
+
+- **Permission Required**: `crm.lead.read`
+- **Query Parameters**:
+  - `search`: String - Search in lead title, organization name, or person details
+  - `statusId`: Number - Filter by status ID
+  - `organizationId`: Number - Filter by organization ID
+  - `personId`: Number - Filter by person ID
+  - `createdFrom`: ISO Date - Filter by creation date (from)
+  - `createdTo`: ISO Date - Filter by creation date (to)
+  - `minValue`: Number - Filter by minimum value
+  - `maxValue`: Number - Filter by maximum value
+  - `page`: Number - Page number (default: 1)
+  - `limit`: Number - Items per page (default: 10)
+  - `sortBy`: String - Field to sort by (title, value, createdAt, updatedAt)
+  - `sortOrder`: String - Sort direction (asc, desc)
+- **Response**: Returns a paginated list of leads with metadata
+  ```json
+  {
+    "data": [
+      {
+        "id": 1,
+        "title": "Lead Example",
+        "value": 10000,
+        "statusId": 1,
+        "organizationId": null,
+        "personId": null,
+        "createdAt": "2025-03-26T01:01:03.353Z",
+        "updatedAt": "2025-03-26T01:01:03.353Z",
+        "status": { ... },
+        "organization": null,
+        "person": null
+      }
+    ],
+    "meta": {
+      "total": 1,
+      "page": 1,
+      "limit": 10,
+      "totalPages": 1
+    }
+  }
+  ```
+
+#### Get Lead by ID
+
+```
+GET /api/v1/crm/leads/:id
+```
+
+- **Permission Required**: `crm.lead.read`
+- **Path Parameters**:
+  - `id`: Number - The lead ID
+- **Response**: Returns the lead with its relations (status, organization, person)
+
+#### Update Lead
+
+```
+PUT /api/v1/crm/leads/:id
+```
+
+- **Permission Required**: `crm.lead.update`
+- **Path Parameters**:
+  - `id`: Number - The lead ID
+- **Request Body**:
+  ```json
+  {
+    "title": "Updated Lead Title", // Optional
+    "value": 15000, // Optional
+    "statusId": 2, // Optional
+    "organizationId": 1, // Optional
+    "personId": 1 // Optional
+  }
+  ```
+- **Response**: Returns the updated lead with its relations
+
+#### Delete Lead
+
+```
+DELETE /api/v1/crm/leads/:id
+```
+
+- **Permission Required**: `crm.lead.delete`
+- **Path Parameters**:
+  - `id`: Number - The lead ID
+- **Response**: Returns the deleted lead (without relations)
+
+#### Convert Lead to Deal
+
+```
+POST /api/v1/crm/leads/:id/convert
+```
+
+- **Permission Required**: `crm.lead.convert`
+- **Path Parameters**:
+  - `id`: Number - The lead ID
+- **Request Body**:
+  ```json
+  {
+    "pipelineId": 1, // Optional - will use default if not provided
+    "stageId": 1, // Optional - will use first stage of pipeline if not provided
+    "probability": 70, // Optional - percentage chance of closing
+    "expectedCloseDate": "2025-06-01" // Optional - ISO date string
+  }
+  ```
+- **Response**: Returns the newly created deal
+- **Behavior**: The lead is deleted after successful conversion
+
+<a id="deal-endpoints"></a>
+
+### Deal Endpoints
+
+Documentation for Deal endpoints will be added in a future update.
+
+<a id="organization-endpoints"></a>
+
+### Organization Endpoints
+
+Documentation for Organization endpoints will be added in a future update.
+
+<a id="person-endpoints"></a>
+
+### Person Endpoints
+
+Documentation for Person endpoints will be added in a future update.
+
+<a id="default-roles"></a>
+
+## Default Roles
+
+### CRM Admin
 
 The CRM Admin has complete control over all CRM functionality. This role is typically assigned to system administrators or CRM managers who need to:
 
@@ -581,7 +520,7 @@ Full access to all CRM features including:
 'crm.settings.manage';
 ```
 
-#### Sales Manager
+### Sales Manager
 
 The Sales Manager oversees the sales team's operations and pipeline management. This role is designed for team leaders who need to:
 
@@ -644,7 +583,7 @@ Focused on team and pipeline management:
 'crm.dashboard.view';
 ```
 
-#### Sales Representative
+### Sales Representative
 
 The Sales Representative handles day-to-day sales activities. This role is perfect for sales team members who need to:
 
@@ -694,7 +633,7 @@ Focused on deal management and daily sales activities:
 'crm.dashboard.view';
 ```
 
-#### CRM Viewer
+### CRM Viewer
 
 The CRM Viewer is a restricted role for stakeholders who need visibility without modification rights. This role is ideal for:
 
