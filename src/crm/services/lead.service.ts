@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateLeadDto, UpdateLeadDto, ConvertLeadDto } from '../dtos/lead.dto';
+import { LeadFiltersDto } from '../dtos/lead-filters.dto';
 import { CRMStatusType } from '@prisma/client';
 
 @Injectable()
@@ -45,14 +46,113 @@ export class LeadService {
     });
   }
 
-  async findAll() {
-    return this.prisma.cRMLead.findMany({
+  async findAll(filters: LeadFiltersDto) {
+    const {
+      search,
+      statusId,
+      organizationId,
+      personId,
+      createdFrom,
+      createdTo,
+      minValue,
+      maxValue,
+      page = 1,
+      limit = 10,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = filters;
+
+    // Build where conditions
+    const where: any = {};
+
+    // Search in title with case insensitivity
+    if (search) {
+      where.OR = [{ title: { contains: search, mode: 'insensitive' } }];
+
+      // Only add nested queries if there are potentially related entities
+      // This avoids "A value is required for..." errors when the field is null
+      // Check for organizations with the search term
+      const organizations = await this.prisma.cRMOrganization.findMany({
+        where: {
+          name: { contains: search, mode: 'insensitive' },
+        },
+        select: { id: true },
+      });
+
+      if (organizations.length > 0) {
+        where.OR.push({
+          organizationId: { in: organizations.map((org) => org.id) },
+        });
+      }
+
+      // Check for persons with the search term
+      const persons = await this.prisma.cRMPerson.findMany({
+        where: {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { email: { contains: search, mode: 'insensitive' } },
+          ],
+        },
+        select: { id: true },
+      });
+
+      if (persons.length > 0) {
+        where.OR.push({
+          personId: { in: persons.map((person) => person.id) },
+        });
+      }
+    }
+
+    // Filter by relations
+    if (statusId) where.statusId = statusId;
+    if (organizationId) where.organizationId = organizationId;
+    if (personId) where.personId = personId;
+
+    // Date range filter
+    if (createdFrom || createdTo) {
+      where.createdAt = {};
+      if (createdFrom) where.createdAt.gte = new Date(createdFrom);
+      if (createdTo) where.createdAt.lte = new Date(createdTo);
+    }
+
+    // Value range filter
+    if (minValue || maxValue) {
+      where.value = {};
+      if (minValue) where.value.gte = minValue;
+      if (maxValue) where.value.lte = maxValue;
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination
+    const total = await this.prisma.cRMLead.count({ where });
+
+    // Execute query with filters, pagination and sorting
+    const leads = await this.prisma.cRMLead.findMany({
+      where,
       include: {
         status: true,
         organization: true,
         person: true,
       },
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+      skip,
+      take: limit,
     });
+
+    // Return paginated result
+    return {
+      data: leads,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOne(id: number) {
