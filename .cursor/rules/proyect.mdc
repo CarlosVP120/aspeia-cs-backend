@@ -6,8 +6,8 @@ alwaysApply: true
 Aspeia CS (Consulting Suite) is a comprehensive B2B Consulting Software Suite that requires integrating several key modules to streamline operations, enhance client management, and improve overall efficiency. Below is an outline of essential modules and their core functionalities:
 
 **IMPORTANT**
-- Before implementing anything, ALWAYS read [system-architecture.md](mdc:docs/system-architecture.md) to understand the current context of the proyect.
-- After each implementation or change, make sure to update the [system-architecture.md](mdc:docs/system-architecture.md) to make sure it is always updated with the code.
+- Before implementing anything, ALWAYS read [abac-system.md](mdc:docs/abac-system.md) , [crm-module.md](mdc:docs/crm-module.md) to understand the current context of the proyect.
+- After each implementation or change, make sure to update the [abac-system.md](mdc:docs/abac-system.md) , [crm-module.md](mdc:docs/crm-module.md) t to make sure it is always updated with the code.
 
 **1. Client Relationship Management (CRM):**
 

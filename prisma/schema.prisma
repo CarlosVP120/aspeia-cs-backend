@@ -82,6 +82,17 @@ model RolePermission {
 }
 
 // CRM Module Tables
+model CRMTag {
+  id            Int       @id @default(autoincrement())
+  name          String    @unique
+  color         String?   // For UI customization
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  organizations CRMOrganization[]
+  persons       CRMPerson[]
+  leads         CRMLead[]
+}
+
 model CRMOrganization {
   id            Int       @id @default(autoincrement())
   name          String
@@ -92,6 +103,7 @@ model CRMOrganization {
   projects      CRMProject[]
   leads         CRMLead[]
   activities    CRMActivity[]
+  tags          CRMTag[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -108,6 +120,7 @@ model CRMPerson {
   leads         CRMLead[]
   activities    CRMActivity[]
   emails        CRMEmail[]
+  tags          CRMTag[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -125,6 +138,7 @@ model CRMLead {
   activities    CRMActivity[]
   emails        CRMEmail[]
   convertedDeal CRMDeal?     // If lead is converted to deal
+  tags          CRMTag[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }

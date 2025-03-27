@@ -4,14 +4,33 @@
 
 - [Overview](#overview)
 - [Database Schema](#database-schema)
+  - [Organization Table](#organization-table)
+  - [Person Table](#person-table)
+  - [Tag Table](#tag-table)
 - [Pipeline Management](#pipeline-management)
 - [Status Management](#status-management)
 - [Permission Sets](#permission-sets)
+  - [Organization Permissions](#organization-permissions)
+  - [Person Permissions](#person-permissions)
+  - [Lead Permissions](#lead-permissions)
+  - [Deal Permissions](#deal-permissions)
+  - [Project Permissions](#project-permissions)
+  - [Activity Permissions](#activity-permissions)
+  - [Product Permissions](#product-permissions)
+  - [Email Permissions](#email-permissions)
+  - [Report Permissions](#report-permissions)
+  - [Settings Permissions](#settings-permissions)
+  - [Pipeline Management Permissions](#pipeline-management-permissions)
+  - [Status Management Permissions](#status-management-permissions)
+  - [Tag Permissions](#tag-permissions)
 - [API Endpoints](#api-endpoints)
   - [Lead Endpoints](#lead-endpoints)
   - [Deal Endpoints](#deal-endpoints)
   - [Organization Endpoints](#organization-endpoints)
   - [Person Endpoints](#person-endpoints)
+  - [Tag Endpoints](#tag-endpoints)
+  - [Tag Usage in Entities](#tag-usage-in-entities)
+  - [Tag Filtering](#tag-filtering)
 - [Default Roles](#default-roles)
 
 <a id="overview"></a>
@@ -28,28 +47,305 @@ The Customer Relationship Management (CRM) module provides comprehensive tools f
 
 ```sql
 Table: CRMOrganization
-- id: UUID (Primary Key)
+- id: Int (Primary Key)
 - name: String
-- industry: String
-- employeeCount: Integer
-- annualRevenue: Decimal
-- website: String
+- industry: String (Optional)
+- address: String (Optional)
 - createdAt: DateTime
 - updatedAt: DateTime
+Relations:
+- people: One-to-Many with CRMPerson
+- deals: One-to-Many with CRMDeal
+- projects: One-to-Many with CRMProject
+- leads: One-to-Many with CRMLead
+- activities: One-to-Many with CRMActivity
+- tags: Many-to-Many with CRMTag
 ```
 
 ### Person Table
 
 ```sql
 Table: CRMPerson
-- id: UUID (Primary Key)
-- firstName: String
-- lastName: String
-- email: String
-- phone: String
-- organizationId: UUID (Foreign Key -> CRMOrganization)
+- id: Int (Primary Key)
+- name: String
+- email: String (Optional)
+- phone: String (Optional)
+- organizationId: Int (Foreign Key -> CRMOrganization, Optional)
 - createdAt: DateTime
 - updatedAt: DateTime
+Relations:
+- organization: Many-to-One with CRMOrganization
+- deals: One-to-Many with CRMDeal
+- projects: One-to-Many with CRMProject
+- leads: One-to-Many with CRMLead
+- activities: One-to-Many with CRMActivity
+- emails: One-to-Many with CRMEmail
+- tags: Many-to-Many with CRMTag
+```
+
+### Lead Table
+
+```sql
+Table: CRMLead
+- id: Int (Primary Key)
+- title: String
+- value: Float (Optional)
+- statusId: Int (Foreign Key -> CRMStatus, Optional)
+- organizationId: Int (Foreign Key -> CRMOrganization, Optional)
+- personId: Int (Foreign Key -> CRMPerson, Optional)
+- createdAt: DateTime
+- updatedAt: DateTime
+Relations:
+- status: Many-to-One with CRMStatus
+- organization: Many-to-One with CRMOrganization
+- person: Many-to-One with CRMPerson
+- activities: One-to-Many with CRMActivity
+- emails: One-to-Many with CRMEmail
+- convertedDeal: One-to-One with CRMDeal
+- tags: Many-to-Many with CRMTag
+```
+
+### Deal Table
+
+```sql
+Table: CRMDeal
+- id: Int (Primary Key)
+- title: String
+- value: Float
+- currency: String (Default: "USD")
+- statusId: Int (Foreign Key -> CRMStatus, Optional)
+- pipelineId: Int (Foreign Key -> CRMPipeline)
+- stageId: Int (Foreign Key -> CRMPipelineStage)
+- probability: Float (Optional)
+- expectedCloseDate: DateTime (Optional)
+- organizationId: Int (Foreign Key -> CRMOrganization, Optional)
+- personId: Int (Foreign Key -> CRMPerson, Optional)
+- projectId: Int (Foreign Key -> CRMProject, Optional)
+- leadId: Int (Foreign Key -> CRMLead, Optional, Unique)
+- createdAt: DateTime
+- updatedAt: DateTime
+Relations:
+- status: Many-to-One with CRMStatus
+- pipeline: Many-to-One with CRMPipeline
+- stage: Many-to-One with CRMPipelineStage
+- organization: Many-to-One with CRMOrganization
+- person: Many-to-One with CRMPerson
+- project: Many-to-One with CRMProject
+- lead: One-to-One with CRMLead
+- activities: One-to-Many with CRMActivity
+- products: One-to-Many with CRMDealProduct
+- emails: One-to-Many with CRMEmail
+```
+
+### Project Table
+
+```sql
+Table: CRMProject
+- id: Int (Primary Key)
+- name: String
+- description: String (Optional)
+- statusId: Int (Foreign Key -> CRMStatus, Optional)
+- progress: Float (Default: 0)
+- organizationId: Int (Foreign Key -> CRMOrganization, Optional)
+- personId: Int (Foreign Key -> CRMPerson, Optional)
+- createdAt: DateTime
+- updatedAt: DateTime
+Relations:
+- status: Many-to-One with CRMStatus
+- organization: Many-to-One with CRMOrganization
+- person: Many-to-One with CRMPerson
+- deals: One-to-Many with CRMDeal
+- activities: One-to-Many with CRMActivity
+- tasks: One-to-Many with CRMProjectTask
+```
+
+### Project Task Table
+
+```sql
+Table: CRMProjectTask
+- id: Int (Primary Key)
+- title: String
+- description: String (Optional)
+- status: String
+- projectId: Int (Foreign Key -> CRMProject)
+- parentTaskId: Int (Foreign Key -> CRMProjectTask, Optional)
+- createdAt: DateTime
+- updatedAt: DateTime
+Relations:
+- project: Many-to-One with CRMProject
+- parentTask: Many-to-One with CRMProjectTask
+- subTasks: One-to-Many with CRMProjectTask
+```
+
+### Activity Table
+
+```sql
+Table: CRMActivity
+- id: Int (Primary Key)
+- type: String
+- title: String
+- description: String (Optional)
+- dueDate: DateTime (Optional)
+- statusId: Int (Foreign Key -> CRMStatus, Optional)
+- organizationId: Int (Foreign Key -> CRMOrganization, Optional)
+- personId: Int (Foreign Key -> CRMPerson, Optional)
+- dealId: Int (Foreign Key -> CRMDeal, Optional)
+- leadId: Int (Foreign Key -> CRMLead, Optional)
+- projectId: Int (Foreign Key -> CRMProject, Optional)
+- createdAt: DateTime
+- updatedAt: DateTime
+Relations:
+- status: Many-to-One with CRMStatus
+- organization: Many-to-One with CRMOrganization
+- person: Many-to-One with CRMPerson
+- deal: Many-to-One with CRMDeal
+- lead: Many-to-One with CRMLead
+- project: Many-to-One with CRMProject
+```
+
+### Product Table
+
+```sql
+Table: CRMProduct
+- id: Int (Primary Key)
+- name: String
+- code: String (Optional, Unique)
+- description: String (Optional)
+- price: Float
+- currency: String (Default: "USD")
+- tax: Float (Optional)
+- active: Boolean (Default: true)
+- createdAt: DateTime
+- updatedAt: DateTime
+Relations:
+- deals: One-to-Many with CRMDealProduct
+```
+
+### Deal Product Table
+
+```sql
+Table: CRMDealProduct
+- id: Int (Primary Key)
+- dealId: Int (Foreign Key -> CRMDeal)
+- productId: Int (Foreign Key -> CRMProduct)
+- quantity: Int (Default: 1)
+- price: Float
+- tax: Float (Optional)
+- createdAt: DateTime
+- updatedAt: DateTime
+Relations:
+- deal: Many-to-One with CRMDeal
+- product: Many-to-One with CRMProduct
+Unique Constraint: [dealId, productId]
+```
+
+### Email Table
+
+```sql
+Table: CRMEmail
+- id: Int (Primary Key)
+- subject: String
+- body: String
+- fromEmail: String
+- toEmail: String
+- personId: Int (Foreign Key -> CRMPerson, Optional)
+- dealId: Int (Foreign Key -> CRMDeal, Optional)
+- leadId: Int (Foreign Key -> CRMLead, Optional)
+- createdAt: DateTime
+- updatedAt: DateTime
+Relations:
+- person: Many-to-One with CRMPerson
+- deal: Many-to-One with CRMDeal
+- lead: Many-to-One with CRMLead
+- attachments: One-to-Many with CRMEmailAttachment
+```
+
+### Email Attachment Table
+
+```sql
+Table: CRMEmailAttachment
+- id: Int (Primary Key)
+- emailId: Int (Foreign Key -> CRMEmail)
+- fileName: String
+- fileUrl: String
+- fileSize: Int
+- createdAt: DateTime
+- updatedAt: DateTime
+Relations:
+- email: Many-to-One with CRMEmail
+```
+
+### Pipeline Table
+
+```sql
+Table: CRMPipeline
+- id: Int (Primary Key)
+- name: String (Unique)
+- description: String (Optional)
+- isDefault: Boolean (Default: false)
+- isActive: Boolean (Default: true)
+- displayOrder: Int (Default: 0)
+- createdAt: DateTime
+- updatedAt: DateTime
+Relations:
+- stages: One-to-Many with CRMPipelineStage
+- deals: One-to-Many with CRMDeal
+```
+
+### Pipeline Stage Table
+
+```sql
+Table: CRMPipelineStage
+- id: Int (Primary Key)
+- name: String
+- description: String (Optional)
+- probability: Float (Default: 0)
+- displayOrder: Int
+- color: String (Optional)
+- pipelineId: Int (Foreign Key -> CRMPipeline)
+- createdAt: DateTime
+- updatedAt: DateTime
+Relations:
+- pipeline: Many-to-One with CRMPipeline
+- deals: One-to-Many with CRMDeal
+Unique Constraint: [name, pipelineId]
+```
+
+### Status Table
+
+```sql
+Table: CRMStatus
+- id: Int (Primary Key)
+- name: String
+- description: String (Optional)
+- type: CRMStatusType
+- color: String (Optional)
+- isDefault: Boolean (Default: false)
+- isActive: Boolean (Default: true)
+- displayOrder: Int (Default: 0)
+- createdAt: DateTime
+- updatedAt: DateTime
+Relations:
+- leads: One-to-Many with CRMLead
+- deals: One-to-Many with CRMDeal
+- projects: One-to-Many with CRMProject
+- activities: One-to-Many with CRMActivity
+Unique Constraint: [name, type]
+```
+
+### Tag Table
+
+```sql
+Table: CRMTag
+- id: Int (Primary Key)
+- name: String (Unique)
+- color: String (Optional)
+- createdAt: DateTime
+- updatedAt: DateTime
+Relations:
+- organizations: Many-to-Many with CRMOrganization
+- persons: Many-to-Many with CRMPerson
+- leads: Many-to-Many with CRMLead
 ```
 
 <a id="pipeline-management"></a>
@@ -274,6 +570,18 @@ Table: CRMDeal
 'crm.status.set_default'; // Set default status
 ```
 
+### Tag Permissions
+
+```typescript
+// Tag Permissions
+'crm.tag.create'; // Create tags
+'crm.tag.read'; // View tags
+'crm.tag.update'; // Update tags
+'crm.tag.delete'; // Delete tags
+'crm.tag.assign'; // Assign tags to entities
+'crm.tag.unassign'; // Remove tags from entities
+```
+
 <a id="api-endpoints"></a>
 
 ## API Endpoints
@@ -431,6 +739,168 @@ Documentation for Organization endpoints will be added in a future update.
 ### Person Endpoints
 
 Documentation for Person endpoints will be added in a future update.
+
+<a id="tag-endpoints"></a>
+
+### Tag Endpoints
+
+The Tag API provides endpoints for managing tags in the CRM system. All endpoints are prefixed with `/api/v1/crm/tags`.
+
+#### Create a Tag
+
+```
+POST /api/v1/crm/tags
+```
+
+- **Permission Required**: `crm.tag.create`
+- **Request Body**:
+  ```json
+  {
+    "name": "VIP Client",
+    "color": "#FF0000" // Optional
+  }
+  ```
+- **Response**: Returns the created tag
+
+#### Get All Tags
+
+```
+GET /api/v1/crm/tags
+```
+
+- **Permission Required**: `crm.tag.read`
+- **Query Parameters**:
+  - `search`: String - Search in tag names
+  - `page`: Number - Page number (default: 1)
+  - `limit`: Number - Items per page (default: 10)
+  - `sortBy`: String - Field to sort by (name, createdAt)
+  - `sortOrder`: String - Sort direction (asc, desc)
+- **Response**: Returns a paginated list of tags with metadata
+
+#### Get Tag by ID
+
+```
+GET /api/v1/crm/tags/:id
+```
+
+- **Permission Required**: `crm.tag.read`
+- **Path Parameters**:
+  - `id`: Number - The tag ID
+- **Response**: Returns the tag with its relations
+
+#### Update Tag
+
+```
+PUT /api/v1/crm/tags/:id
+```
+
+- **Permission Required**: `crm.tag.update`
+- **Path Parameters**:
+  - `id`: Number - The tag ID
+- **Request Body**:
+  ```json
+  {
+    "name": "Updated Tag Name", // Optional
+    "color": "#00FF00" // Optional
+  }
+  ```
+- **Response**: Returns the updated tag
+
+#### Delete Tag
+
+```
+DELETE /api/v1/crm/tags/:id
+```
+
+- **Permission Required**: `crm.tag.delete`
+- **Path Parameters**:
+  - `id`: Number - The tag ID
+- **Response**: Returns the deleted tag
+
+#### Assign Tags to Entity
+
+```
+POST /api/v1/crm/tags/assign
+```
+
+- **Permission Required**: `crm.tag.assign`
+- **Request Body**:
+  ```json
+  {
+    "tagIds": [1, 2, 3],
+    "entityType": "lead" | "person" | "organization",
+    "entityId": 1
+  }
+  ```
+- **Response**: Returns the updated entity with its tags
+
+#### Remove Tags from Entity
+
+```
+POST /api/v1/crm/tags/unassign
+```
+
+- **Permission Required**: `crm.tag.unassign`
+- **Request Body**:
+  ```json
+  {
+    "tagIds": [1, 2, 3],
+    "entityType": "lead" | "person" | "organization",
+    "entityId": 1
+  }
+  ```
+- **Response**: Returns the updated entity with its remaining tags
+
+<a id="tag-usage-in-entities"></a>
+
+### Tag Usage in Entities
+
+Tags can be included in the response of other entities by using the appropriate query parameter:
+
+```
+GET /api/v1/crm/leads?includeTags=true
+GET /api/v1/crm/persons?includeTags=true
+GET /api/v1/crm/organizations?includeTags=true
+```
+
+The response will include a `tags` array in each entity containing the associated tags:
+
+```json
+{
+  "id": 1,
+  "name": "Example Organization",
+  "tags": [
+    {
+      "id": 1,
+      "name": "VIP Client",
+      "color": "#FF0000"
+    },
+    {
+      "id": 2,
+      "name": "Tech Industry",
+      "color": "#00FF00"
+    }
+  ]
+}
+```
+
+<a id="tag-filtering"></a>
+
+### Tag Filtering
+
+You can filter entities by tags using the `tagIds` query parameter:
+
+```
+GET /api/v1/crm/leads?tagIds=1,2,3
+GET /api/v1/crm/persons?tagIds=1,2,3
+GET /api/v1/crm/organizations?tagIds=1,2,3
+```
+
+This will return only entities that have ALL the specified tags (AND condition). For OR condition, use the `tagIdsOr` parameter:
+
+```
+GET /api/v1/crm/leads?tagIdsOr=1,2,3
+```
 
 <a id="default-roles"></a>
 

@@ -88,6 +88,14 @@ export async function seedCRMPermissions() {
     { name: 'crm.status.update', description: 'Update statuses' },
     { name: 'crm.status.delete', description: 'Delete statuses' },
     { name: 'crm.status.set_default', description: 'Set default status' },
+
+    // Tag Permissions
+    { name: 'crm.tag.create', description: 'Create tags' },
+    { name: 'crm.tag.read', description: 'View tags' },
+    { name: 'crm.tag.update', description: 'Update tags' },
+    { name: 'crm.tag.delete', description: 'Delete tags' },
+    { name: 'crm.tag.assign', description: 'Assign tags to entities' },
+    { name: 'crm.tag.unassign', description: 'Remove tags from entities' },
   ];
 
   // Create all permissions
@@ -137,6 +145,11 @@ export async function seedCRMPermissions() {
         'crm.pipeline.manage_stages',
         'crm.status.read',
         'crm.status.update',
+        'crm.tag.create',
+        'crm.tag.read',
+        'crm.tag.update',
+        'crm.tag.assign',
+        'crm.tag.unassign',
       ],
     },
     {
@@ -161,6 +174,9 @@ export async function seedCRMPermissions() {
         'crm.dashboard.view',
         'crm.pipeline.read',
         'crm.status.read',
+        'crm.tag.read',
+        'crm.tag.assign',
+        'crm.tag.unassign',
       ],
     },
     {
@@ -176,6 +192,7 @@ export async function seedCRMPermissions() {
         'crm.product.read',
         'crm.email.read',
         'crm.dashboard.view',
+        'crm.tag.read',
       ],
     },
   ];
