@@ -2,6 +2,85 @@
 CREATE TYPE "CRMStatusType" AS ENUM ('LEAD', 'DEAL', 'PROJECT', 'ACTIVITY');
 
 -- CreateTable
+CREATE TABLE "Module" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Module_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "User" (
+    "id" SERIAL NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "name" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Role" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "moduleId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Role_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Permission" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Permission_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "UserRole" (
+    "id" SERIAL NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "roleId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "UserRole_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "RolePermission" (
+    "id" SERIAL NOT NULL,
+    "roleId" INTEGER NOT NULL,
+    "permissionId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "RolePermission_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CRMTag" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "color" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "CRMTag_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "CRMOrganization" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
@@ -213,6 +292,51 @@ CREATE TABLE "CRMStatus" (
     CONSTRAINT "CRMStatus_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "_CRMOrganizationToCRMTag" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
+
+    CONSTRAINT "_CRMOrganizationToCRMTag_AB_pkey" PRIMARY KEY ("A","B")
+);
+
+-- CreateTable
+CREATE TABLE "_CRMPersonToCRMTag" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
+
+    CONSTRAINT "_CRMPersonToCRMTag_AB_pkey" PRIMARY KEY ("A","B")
+);
+
+-- CreateTable
+CREATE TABLE "_CRMLeadToCRMTag" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
+
+    CONSTRAINT "_CRMLeadToCRMTag_AB_pkey" PRIMARY KEY ("A","B")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Module_name_key" ON "Module"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Role_name_moduleId_key" ON "Role"("name", "moduleId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Permission_name_key" ON "Permission"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserRole_userId_roleId_key" ON "UserRole"("userId", "roleId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RolePermission_roleId_permissionId_key" ON "RolePermission"("roleId", "permissionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CRMTag_name_key" ON "CRMTag"("name");
+
 -- CreateIndex
 CREATE UNIQUE INDEX "CRMDeal_leadId_key" ON "CRMDeal"("leadId");
 
@@ -230,6 +354,30 @@ CREATE UNIQUE INDEX "CRMPipelineStage_name_pipelineId_key" ON "CRMPipelineStage"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "CRMStatus_name_type_key" ON "CRMStatus"("name", "type");
+
+-- CreateIndex
+CREATE INDEX "_CRMOrganizationToCRMTag_B_index" ON "_CRMOrganizationToCRMTag"("B");
+
+-- CreateIndex
+CREATE INDEX "_CRMPersonToCRMTag_B_index" ON "_CRMPersonToCRMTag"("B");
+
+-- CreateIndex
+CREATE INDEX "_CRMLeadToCRMTag_B_index" ON "_CRMLeadToCRMTag"("B");
+
+-- AddForeignKey
+ALTER TABLE "Role" ADD CONSTRAINT "Role_moduleId_fkey" FOREIGN KEY ("moduleId") REFERENCES "Module"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserRole" ADD CONSTRAINT "UserRole_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserRole" ADD CONSTRAINT "UserRole_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RolePermission" ADD CONSTRAINT "RolePermission_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RolePermission" ADD CONSTRAINT "RolePermission_permissionId_fkey" FOREIGN KEY ("permissionId") REFERENCES "Permission"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "CRMPerson" ADD CONSTRAINT "CRMPerson_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "CRMOrganization"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -317,3 +465,21 @@ ALTER TABLE "CRMEmailAttachment" ADD CONSTRAINT "CRMEmailAttachment_emailId_fkey
 
 -- AddForeignKey
 ALTER TABLE "CRMPipelineStage" ADD CONSTRAINT "CRMPipelineStage_pipelineId_fkey" FOREIGN KEY ("pipelineId") REFERENCES "CRMPipeline"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CRMOrganizationToCRMTag" ADD CONSTRAINT "_CRMOrganizationToCRMTag_A_fkey" FOREIGN KEY ("A") REFERENCES "CRMOrganization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CRMOrganizationToCRMTag" ADD CONSTRAINT "_CRMOrganizationToCRMTag_B_fkey" FOREIGN KEY ("B") REFERENCES "CRMTag"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CRMPersonToCRMTag" ADD CONSTRAINT "_CRMPersonToCRMTag_A_fkey" FOREIGN KEY ("A") REFERENCES "CRMPerson"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CRMPersonToCRMTag" ADD CONSTRAINT "_CRMPersonToCRMTag_B_fkey" FOREIGN KEY ("B") REFERENCES "CRMTag"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CRMLeadToCRMTag" ADD CONSTRAINT "_CRMLeadToCRMTag_A_fkey" FOREIGN KEY ("A") REFERENCES "CRMLead"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CRMLeadToCRMTag" ADD CONSTRAINT "_CRMLeadToCRMTag_B_fkey" FOREIGN KEY ("B") REFERENCES "CRMTag"("id") ON DELETE CASCADE ON UPDATE CASCADE;

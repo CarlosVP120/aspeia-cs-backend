@@ -27,7 +27,8 @@ export class LeadService {
       }
     }
 
-    const { statusId, organizationId, personId, ...rest } = createLeadDto;
+    const { statusId, organizationId, personId, tagIds, ...rest } =
+      createLeadDto;
 
     return this.prisma.cRMLead.create({
       data: {
@@ -37,11 +38,13 @@ export class LeadService {
           ? { connect: { id: organizationId } }
           : undefined,
         person: personId ? { connect: { id: personId } } : undefined,
+        tags: tagIds ? { connect: tagIds.map((id) => ({ id })) } : undefined,
       },
       include: {
         status: true,
         organization: true,
         person: true,
+        tags: true,
       },
     });
   }
@@ -135,6 +138,7 @@ export class LeadService {
         status: true,
         organization: true,
         person: true,
+        tags: true,
       },
       orderBy: {
         [sortBy]: sortOrder,
@@ -162,6 +166,7 @@ export class LeadService {
         status: true,
         organization: true,
         person: true,
+        tags: true,
       },
     });
 
@@ -176,7 +181,8 @@ export class LeadService {
     // Check if lead exists
     await this.findOne(id);
 
-    const { statusId, organizationId, personId, ...rest } = updateLeadDto;
+    const { statusId, organizationId, personId, tagIds, ...rest } =
+      updateLeadDto;
 
     return this.prisma.cRMLead.update({
       where: { id },
@@ -187,11 +193,13 @@ export class LeadService {
           ? { connect: { id: organizationId } }
           : undefined,
         person: personId ? { connect: { id: personId } } : undefined,
+        tags: tagIds ? { set: tagIds.map((id) => ({ id })) } : undefined,
       },
       include: {
         status: true,
         organization: true,
         person: true,
+        tags: true,
       },
     });
   }

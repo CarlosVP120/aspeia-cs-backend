@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsNumber, IsDateString } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsDateString,
+  IsArray,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateLeadDto {
@@ -24,6 +30,12 @@ export class CreateLeadDto {
   @Type(() => Number)
   @IsOptional()
   personId?: number;
+
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @Type(() => Number)
+  @IsOptional()
+  tagIds?: number[];
 }
 
 export class UpdateLeadDto {
@@ -50,6 +62,12 @@ export class UpdateLeadDto {
   @Type(() => Number)
   @IsOptional()
   personId?: number;
+
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @Type(() => Number)
+  @IsOptional()
+  tagIds?: number[];
 }
 
 export class ConvertLeadDto {
