@@ -23,13 +23,7 @@ export class TagService {
   }
 
   async findAll(filters: TagFiltersDto) {
-    const {
-      search,
-      page = 1,
-      limit = 10,
-      sortBy = 'name',
-      sortOrder = 'asc',
-    } = filters;
+    const { search, sortBy = 'name', sortOrder = 'asc' } = filters;
 
     // Build where conditions
     const where: Prisma.CRMTagWhereInput = {};
@@ -39,20 +33,12 @@ export class TagService {
       where.name = { contains: search, mode: 'insensitive' };
     }
 
-    // Calculate pagination
-    const skip = (page - 1) * limit;
-
-    // Get total count for pagination
-    const total = await this.prisma.cRMTag.count({ where });
-
-    // Execute query with filters, pagination and sorting
+    // Execute query with filters and sorting
     const tags = await this.prisma.cRMTag.findMany({
       where,
       orderBy: {
         [sortBy]: sortOrder,
       },
-      skip,
-      take: limit,
       include: {
         _count: {
           select: {
@@ -64,16 +50,8 @@ export class TagService {
       },
     });
 
-    // Return paginated result
-    return {
-      data: tags,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+    // Return all tags
+    return tags;
   }
 
   async findOne(id: number) {

@@ -46,16 +46,6 @@ export class TagFiltersDto {
   @IsOptional()
   search?: string;
 
-  @ApiProperty({ description: 'Page number', required: false, default: 1 })
-  @IsNumber()
-  @IsOptional()
-  page?: number = 1;
-
-  @ApiProperty({ description: 'Items per page', required: false, default: 10 })
-  @IsNumber()
-  @IsOptional()
-  limit?: number = 10;
-
   @ApiProperty({
     description: 'Field to sort by',
     required: false,
