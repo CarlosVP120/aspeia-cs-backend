@@ -6,7 +6,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { jwtConstants } from './jwt/constants';
-import { ModulePermissionGuard } from './guards/module-permission.guard';
 
 @Module({
   imports: [
@@ -18,7 +17,7 @@ import { ModulePermissionGuard } from './guards/module-permission.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, ModulePermissionGuard],
+  providers: [AuthService, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}
