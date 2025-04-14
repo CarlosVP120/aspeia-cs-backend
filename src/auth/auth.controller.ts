@@ -97,19 +97,6 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('users/:id/permissions')
-  async getUserPermissions(@Param('id') id: string) {
-    try {
-      return this.authService.getUserPermissions(parseInt(id));
-    } catch (error) {
-      throw new HttpException(
-        error.message || 'Error al obtener permisos del usuario',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Get('refreshToken')
   async refreshToken(@Req() req: any) {
     return this.authService.refreshToken(req.user);

@@ -13,70 +13,65 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Module {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique
-  description String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  roles       Role[]
-}
-
 model User {
-  id           Int        @id @default(autoincrement())
-  email        String     @unique
-  password     String
-  name         String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  userRoles    UserRole[]
+  id            Int           @id @default(autoincrement())
+  name          String        @unique
+  email         String        @unique
+  password      String
+  createdAt     DateTime      @default(now())
+  status        String        @default("active")
+
+  groups        UserGroup[]   // many-to-many via UserGroup
+  userPolicies  UserPolicy[]
 }
 
-model Role {
-  id          Int        @id @default(autoincrement())
-  name        String     
-  description String?
-  moduleId    Int
-  module      Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  userRoles   UserRole[]
-  permissions RolePermission[]
+model Group {
+  id            Int           @id @default(autoincrement())
+  name          String        @unique
+  description   String?
+  createdAt     DateTime      @default(now())
 
-  @@unique([name, moduleId])
+  users         UserGroup[]
+  groupPolicies GroupPolicy[]
 }
 
-model Permission {
-  id          Int              @id @default(autoincrement())
-  name        String           
-  description String?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  roles       RolePermission[]
+model Policy {
+  id             Int            @id @default(autoincrement())
+  name           String         @unique
+  description    String?
+  policyDocument Json
+  createdAt      DateTime       @default(now())
 
-  @@unique([name])
+  userPolicies   UserPolicy[]
+  groupPolicies  GroupPolicy[]
 }
 
-model UserRole {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  roleId    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+model UserGroup {
+  userId   Int
+  groupId  Int
 
-  @@unique([userId, roleId])
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group    Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
 }
 
-model RolePermission {
-  id           Int        @id @default(autoincrement())
-  roleId       Int
-  permissionId Int
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+model UserPolicy {
+  userId   Int
+  policyId Int
 
-  @@unique([roleId, permissionId])
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  policy   Policy  @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@id([userId, policyId])
+}
+
+model GroupPolicy {
+  groupId  Int
+  policyId Int
+
+  group    Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  policy   Policy  @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, policyId])
 }

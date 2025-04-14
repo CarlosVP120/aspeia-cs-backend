@@ -181,38 +181,4 @@ export class AuthService {
       accessToken: token,
     });
   }
-
-  async getUserPermissions(userId: number): Promise<string[]> {
-    const userWithRoles = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        userRoles: {
-          include: {
-            role: {
-              include: {
-                permissions: {
-                  include: {
-                    permission: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!userWithRoles) {
-      throw new NotFoundException('Usuario no encontrado');
-    }
-
-    const permissionsSet = new Set<string>();
-    userWithRoles.userRoles.forEach((userRole) => {
-      userRole.role.permissions.forEach((rolePermission) => {
-        permissionsSet.add(rolePermission.permission.name);
-      });
-    });
-
-    return Array.from(permissionsSet);
-  }
 }
