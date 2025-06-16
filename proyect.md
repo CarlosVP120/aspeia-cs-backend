@@ -1,4 +1,4 @@
-Aspeia CS (Consulting Suite) is a comprehensive B2B Consulting Software Suite that requires integrating several key modules to streamline operations, enhance client management, and improve overall efficiency. Below is an outline of essential modules and their core functionalities:
+Aspeia Finance (Consulting Suite) is a comprehensive B2B Consulting Software Suite that requires integrating several key modules to streamline operations, enhance client management, and improve overall efficiency. Below is an outline of essential modules and their core functionalities:
 
 **1. Client Relationship Management (CRM):**
 
